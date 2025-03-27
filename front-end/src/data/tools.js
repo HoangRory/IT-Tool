@@ -1,4 +1,4 @@
-import { KeyRound, Hash, Lock, Code, Globe, Calendar, Ruler, Link, ShieldCheck } from "lucide-react";
+import { KeyRound, Hash, Lock, Code, Globe, Calendar, Ruler, Link, ShieldCheck, Wifi, QrCode } from "lucide-react";
 
 export const tools = [
   {
@@ -58,6 +58,18 @@ export const tools = [
         path: "/jwt-parser",
         icon: <ShieldCheck size={18} />, 
         description: "Decode and verify JSON Web Tokens.",
+      },
+    ],
+  },
+  {
+    category: "QR Code Generator",
+    icon: <QrCode size={18} />,
+    items: [
+      {
+        name: "Wi-Fi QR Generator",
+        path: "/wifi-qr",
+        icon: <Wifi size={18} />, 
+        description: "Generate a QR code to connect to Wi-Fi networks easily.",
       },
     ],
   },
