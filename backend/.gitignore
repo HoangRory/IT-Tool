@@ -1,0 +1,26 @@
+# .NET Core
+bin/
+obj/
+*.user
+*.suo
+*.sln.docstates
+*.csproj.user
+
+# Visual Studio Code
+.vscode/
+
+# NuGet Packages
+*.nupkg
+packages/
+
+# Build and runtime artifacts
+*.dll
+*.exe
+*.pdb
+
+# Logs and temporary files
+*.log
+*.tmp
+
+# Sensitive data
+appsettings.json  # Optional: exclude if it contains secrets

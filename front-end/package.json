@@ -2,6 +2,7 @@
   "name": "front-end",
   "version": "0.1.0",
   "private": true,
+  "proxy": "http://localhost:5074",
   "dependencies": {
     "cra-template-tailwindcss": "4.0.1",
     "crypto-js": "^4.2.0",

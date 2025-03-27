@@ -3,16 +3,18 @@ import MainLayout from "../layouts/MainLayout";
 import Home from "../pages/MainContent";
 // import TokenGenerator from "../pages/TokenGenerator";
 import HashText from "../pages/HashText";
+import WifiQR from "../pages/WifiQR"; // Import the new component
 
 export default function AppRoutes() {
   return (
-      <Routes>
-        {/* Dùng Layout chung */}
-        <Route element={<MainLayout />}>
-          <Route path="/" element={<Home />} />
-          {/* <Route path="/token-generator" element={<TokenGenerator />} /> */}
-          <Route path="/hash-text" element={<HashText />} />
-        </Route>
-      </Routes>
+    <Routes>
+      {/* Use MainLayout for all routes */}
+      <Route element={<MainLayout />}>
+        <Route path="/" element={<Home />} />
+        {/* <Route path="/token-generator" element={<TokenGenerator />} /> */}
+        <Route path="/hash-text" element={<HashText />} />
+        <Route path="/wifi-qr" element={<WifiQR />} /> {/* Add this route */}
+      </Route>
+    </Routes>
   );
 }
