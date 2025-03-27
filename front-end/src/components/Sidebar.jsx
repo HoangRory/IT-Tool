@@ -16,7 +16,11 @@ export default function Sidebar() {
 
   return (
     <aside className="w-64 bg-gray-900 text-white p-4">
-      <h2 className="text-xl font-bold">IT - TOOLS</h2>
+      <Link to="/">
+        <h2 className="text-xl font-bold cursor-pointer hover:text-gray-300">
+          IT - TOOLS
+        </h2>
+      </Link>
       <nav>
         <ul className="mt-4 space-y-2">
           {tools.map(({ category, icon, items }) => (
