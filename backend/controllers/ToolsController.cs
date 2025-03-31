@@ -47,37 +47,54 @@ namespace Backend.Controllers
         }
 
         [HttpPost("token")]
-        public async Task<IActionResult> GenerateToken([FromBody] TokenRequest request)
+    public async Task<IActionResult> GenerateToken([FromBody] TokenRequest request)
+    {
+        if (!ModelState.IsValid)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var tool = _toolManager.GetTool("/api/tools/token");
-            if (tool == null)
-                return NotFound("Token Generator tool not found.");
-
-            try
-            {
-                var parameters = new Dictionary<string, object>
-                {
-                    ["IncludeUppercase"] = request.IncludeUppercase,
-                    ["IncludeLowercase"] = request.IncludeLowercase,
-                    ["IncludeNumbers"] = request.IncludeNumbers,
-                    ["IncludeSymbols"] = request.IncludeSymbols,
-                    ["Length"] = request.Length
-                };
-                var result = await tool.ExecuteAsync(parameters);
-                if (result is IDictionary<string, object> tokenResult && tokenResult.TryGetValue("Token", out var token))
-                    return Ok(new { Token = token });
-                return BadRequest("Unexpected result format from Token Generator tool.");
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            return BadRequest(ModelState);
         }
+
+        var tool = _toolManager.GetTool("/api/tools/token");
+        if (tool == null)
+            return NotFound("Token Generator tool not found.");
+
+        try
+        {
+            var parameters = new Dictionary<string, object>
+            {
+                ["IncludeUppercase"] = request.IncludeUppercase,
+                ["IncludeLowercase"] = request.IncludeLowercase,
+                ["IncludeNumbers"] = request.IncludeNumbers,
+                ["IncludeSymbols"] = request.IncludeSymbols,
+                ["Length"] = request.Length
+            };
+            var result = await tool.ExecuteAsync(parameters);
+            Console.WriteLine($"Result Type: {result?.GetType()?.FullName}");
+            if (result == null)
+                return BadRequest("Result is null from Token Generator tool.");
+
+            if (result is IDictionary<string, object> tokenResult)
+            {
+                Console.WriteLine("Result is IDictionary<string, object>");
+                if (tokenResult.TryGetValue("Token", out var token))
+                {
+                    Console.WriteLine($"Token: {token}");
+                    return Ok(new { Token = token });
+                }
+                else
+                {
+                    Console.WriteLine("Token key not found in dictionary");
+                    return BadRequest("Token key not found in result.");
+                }
+            }
+            Console.WriteLine("Result is not IDictionary<string, object>");
+            return BadRequest("Unexpected result format from Token Generator tool.");
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
 
         [HttpPost("{toolPath}")]
         public async Task<IActionResult> ExecuteTool(string toolPath, [FromBody] Dictionary<string, object> parameters)

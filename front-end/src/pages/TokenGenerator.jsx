@@ -6,7 +6,7 @@ export default function TokenGenerator() {
   const [lowercase, setLowercase] = useState(false);
   const [numbers, setNumbers] = useState(false);
   const [symbols, setSymbols] = useState(false);
-  const [length, setLength] = useState(16); // Default length
+  const [length, setLength] = useState(16);
   const [token, setToken] = useState(null);
   const [error, setError] = useState(null);
 

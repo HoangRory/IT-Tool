@@ -17,27 +17,21 @@ namespace Backend.Services
 
         public async Task<object> ExecuteAsync(Dictionary<string, object> parameters)
         {
-            // Extract parameters with type safety
             bool includeUppercase = (bool)parameters["IncludeUppercase"];
             bool includeLowercase = (bool)parameters["IncludeLowercase"];
             bool includeNumbers = (bool)parameters["IncludeNumbers"];
             bool includeSymbols = (bool)parameters["IncludeSymbols"];
             int length = (int)parameters["Length"];
 
-            // Build the character pool
             StringBuilder charPool = new StringBuilder();
-            if (includeUppercase) charPool.Append(UppercaseChars);
-            if (includeLowercase) charPool.Append(LowercaseChars);
-            if (includeNumbers) charPool.Append(NumberChars);
-            if (includeSymbols) charPool.Append(SymbolChars);
+            if (includeUppercase) charPool.Append("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+            if (includeLowercase) charPool.Append("abcdefghijklmnopqrstuvwxyz");
+            if (includeNumbers) charPool.Append("0123456789");
+            if (includeSymbols) charPool.Append("!@#$%^&*()-_=+[]{}|;:,.<>?");
 
-            // Validate the pool
             if (charPool.Length == 0)
-            {
                 throw new ArgumentException("At least one character type must be selected.");
-            }
 
-            // Generate the token
             char[] pool = charPool.ToString().ToCharArray();
             byte[] randomBytes = RandomNumberGenerator.GetBytes(length);
             char[] result = new char[length];
@@ -48,8 +42,11 @@ namespace Backend.Services
                 result[i] = pool[index];
             }
 
-            // Return the result as an anonymous object
-            return await Task.FromResult(new { Token = new string(result) });
+            var tokenResult = new Dictionary<string, object>
+            {
+                ["Token"] = new string(result)
+            };
+            return await Task.FromResult(tokenResult);
         }
     }
 }
