@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function WifiQR() {
   const [ssid, setSsid] = useState("");
   const [password, setPassword] = useState("");
   const [qrCodeUrl, setQrCodeUrl] = useState(null);
   const [error, setError] = useState(null);
+  const [showPassword, setShowPassword] = useState(false); // New state for toggling password visibility
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -15,9 +17,9 @@ export default function WifiQR() {
     try {
       const response = await axios.post("/api/tools/wifi-qr", {
         SSID: ssid,
-        Password: password
+        Password: password,
       }, {
-        responseType: "blob"
+        responseType: "blob",
       });
 
       const url = URL.createObjectURL(response.data);
@@ -31,7 +33,7 @@ export default function WifiQR() {
     if (qrCodeUrl) {
       const link = document.createElement("a");
       link.href = qrCodeUrl;
-      link.download = `wifi-qr-${ssid}.png`; // Filename includes SSID
+      link.download = `wifi-qr-${ssid}.png`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -76,15 +78,25 @@ export default function WifiQR() {
             <label htmlFor="password" className="block text-gray-700 font-medium mb-2">
               Password:
             </label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              placeholder="Enter Wi-Fi password"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                placeholder="Enter Wi-Fi password"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700 focus:outline-none"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <wwwwwwwwwwwwwwwwwwOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
           </div>
           <button
             type="submit"

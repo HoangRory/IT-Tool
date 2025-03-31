@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Backend.Services;
 using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
 
 namespace Backend.Controllers
 {
@@ -8,27 +9,36 @@ namespace Backend.Controllers
     [Route("api/[controller]")]
     public class ToolsController : ControllerBase
     {
-        private readonly WifiQRCodeService _qrService;
-        private readonly TokenGeneratorService _tokenService;
+        private readonly ToolsManager _toolManager;
 
-        public ToolsController(WifiQRCodeService qrService, TokenGeneratorService tokenService)
+        public ToolsController(ToolsManager toolManager)
         {
-            _qrService = qrService;
-            _tokenService = tokenService;
+            _toolManager = toolManager;
         }
 
         [HttpPost("wifi-qr")]
-        public IActionResult GenerateWifiQR([FromBody] WifiRequest request)
+        public async Task<IActionResult> GenerateWifiQR([FromBody] WifiRequest request)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
+            var tool = _toolManager.GetTool("/api/tools/wifi-qr");
+            if (tool == null)
+                return NotFound("WiFi QR Code Generator tool not found.");
+
             try
             {
-                var qrCodeBytes = _qrService.GenerateWifiQRCode(request.SSID, request.Password);
-                return File(qrCodeBytes, "image/png");
+                var parameters = new Dictionary<string, object>
+                {
+                    ["SSID"] = request.SSID,
+                    ["Password"] = request.Password
+                };
+                var result = await tool.ExecuteAsync(parameters);
+                if (result is byte[] bytes)
+                    return File(bytes, "image/png");
+                return BadRequest("Unexpected result format from WiFi QR tool.");
             }
             catch (ArgumentException ex)
             {
@@ -37,28 +47,64 @@ namespace Backend.Controllers
         }
 
         [HttpPost("token")]
-        public IActionResult GenerateToken([FromBody] TokenRequest request)
+        public async Task<IActionResult> GenerateToken([FromBody] TokenRequest request)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
+            var tool = _toolManager.GetTool("/api/tools/token");
+            if (tool == null)
+                return NotFound("Token Generator tool not found.");
+
             try
             {
-                string token = _tokenService.GenerateRandomToken(
-                    request.IncludeUppercase,
-                    request.IncludeLowercase,
-                    request.IncludeNumbers,
-                    request.IncludeSymbols,
-                    request.Length
-                );
-                return Ok(new { Token = token });
+                var parameters = new Dictionary<string, object>
+                {
+                    ["IncludeUppercase"] = request.IncludeUppercase,
+                    ["IncludeLowercase"] = request.IncludeLowercase,
+                    ["IncludeNumbers"] = request.IncludeNumbers,
+                    ["IncludeSymbols"] = request.IncludeSymbols,
+                    ["Length"] = request.Length
+                };
+                var result = await tool.ExecuteAsync(parameters);
+                if (result is IDictionary<string, object> tokenResult && tokenResult.TryGetValue("Token", out var token))
+                    return Ok(new { Token = token });
+                return BadRequest("Unexpected result format from Token Generator tool.");
             }
             catch (ArgumentException ex)
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+        [HttpPost("{toolPath}")]
+        public async Task<IActionResult> ExecuteTool(string toolPath, [FromBody] Dictionary<string, object> parameters)
+        {
+            var tool = _toolManager.GetTool($"/api/tools/{toolPath}");
+            if (tool == null)
+                return NotFound($"Tool '{toolPath}' not found.");
+
+            try
+            {
+                var result = await tool.ExecuteAsync(parameters);
+                if (result is byte[] bytes)
+                    return File(bytes, "image/png");
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("list")]
+        public IActionResult GetToolList()
+        {
+            var tools = _toolManager.GetAllTools()
+                .Select(t => new { t.Name, t.Path, t.Category });
+            return Ok(tools);
         }
     }
 
