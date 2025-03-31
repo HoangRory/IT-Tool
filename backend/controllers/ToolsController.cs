@@ -9,9 +9,9 @@ namespace Backend.Controllers
     [Route("api/[controller]")]
     public class ToolsController : ControllerBase
     {
-        private readonly ToolsManager _toolManager;
+        private readonly ToolManager _toolManager;
 
-        public ToolsController(ToolsManager toolManager)
+        public ToolsController(ToolManager toolManager)
         {
             _toolManager = toolManager;
         }
@@ -47,54 +47,54 @@ namespace Backend.Controllers
         }
 
         [HttpPost("token")]
-    public async Task<IActionResult> GenerateToken([FromBody] TokenRequest request)
-    {
-        if (!ModelState.IsValid)
+        public async Task<IActionResult> GenerateToken([FromBody] TokenRequest request)
         {
-            return BadRequest(ModelState);
-        }
-
-        var tool = _toolManager.GetTool("/api/tools/token");
-        if (tool == null)
-            return NotFound("Token Generator tool not found.");
-
-        try
-        {
-            var parameters = new Dictionary<string, object>
+            if (!ModelState.IsValid)
             {
-                ["IncludeUppercase"] = request.IncludeUppercase,
-                ["IncludeLowercase"] = request.IncludeLowercase,
-                ["IncludeNumbers"] = request.IncludeNumbers,
-                ["IncludeSymbols"] = request.IncludeSymbols,
-                ["Length"] = request.Length
-            };
-            var result = await tool.ExecuteAsync(parameters);
-            Console.WriteLine($"Result Type: {result?.GetType()?.FullName}");
-            if (result == null)
-                return BadRequest("Result is null from Token Generator tool.");
-
-            if (result is IDictionary<string, object> tokenResult)
-            {
-                Console.WriteLine("Result is IDictionary<string, object>");
-                if (tokenResult.TryGetValue("Token", out var token))
-                {
-                    Console.WriteLine($"Token: {token}");
-                    return Ok(new { Token = token });
-                }
-                else
-                {
-                    Console.WriteLine("Token key not found in dictionary");
-                    return BadRequest("Token key not found in result.");
-                }
+                return BadRequest(ModelState);
             }
-            Console.WriteLine("Result is not IDictionary<string, object>");
-            return BadRequest("Unexpected result format from Token Generator tool.");
+
+            var tool = _toolManager.GetTool("/api/tools/token");
+            if (tool == null)
+                return NotFound("Token Generator tool not found.");
+
+            try
+            {
+                var parameters = new Dictionary<string, object>
+                {
+                    ["IncludeUppercase"] = request.IncludeUppercase,
+                    ["IncludeLowercase"] = request.IncludeLowercase,
+                    ["IncludeNumbers"] = request.IncludeNumbers,
+                    ["IncludeSymbols"] = request.IncludeSymbols,
+                    ["Length"] = request.Length
+                };
+                var result = await tool.ExecuteAsync(parameters);
+                Console.WriteLine($"Result Type: {result?.GetType()?.FullName}");
+                if (result == null)
+                    return BadRequest("Result is null from Token Generator tool.");
+
+                if (result is IDictionary<string, object> tokenResult)
+                {
+                    Console.WriteLine("Result is IDictionary<string, object>");
+                    if (tokenResult.TryGetValue("Token", out var token))
+                    {
+                        Console.WriteLine($"Token: {token}");
+                        return Ok(new { Token = token });
+                    }
+                    else
+                    {
+                        Console.WriteLine("Token key not found in dictionary");
+                        return BadRequest("Token key not found in result.");
+                    }
+                }
+                Console.WriteLine("Result is not IDictionary<string, object>");
+                return BadRequest("Unexpected result format from Token Generator tool.");
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(ex.Message);
-        }
-    }
 
         [HttpPost("{toolPath}")]
         public async Task<IActionResult> ExecuteTool(string toolPath, [FromBody] Dictionary<string, object> parameters)

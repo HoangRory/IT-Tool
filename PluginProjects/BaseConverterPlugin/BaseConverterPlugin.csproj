@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Backend">
+      <HintPath>../backend/bin/Debug/net8.0/Backend.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>
