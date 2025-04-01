@@ -120,10 +120,38 @@ namespace Backend.Controllers
         public IActionResult GetToolList()
         {
             var tools = _toolManager.GetAllTools()
-                .Select(t => new { t.Name, t.Path, t.Category });
+                .Select(t => new { t.Name, t.Path, t.Category, t.Description });
             return Ok(tools);
         }
-    }
+
+        [HttpPost("upload-plugin")]
+        public IActionResult UploadPlugin(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("No file uploaded.");
+            if (!file.FileName.EndsWith(".dll"))
+                return BadRequest("Only .dll files are allowed.");
+
+            var pluginsPath = Path.Combine(Directory.GetCurrentDirectory(), "plugins");
+            Directory.CreateDirectory(pluginsPath);
+            var filePath = Path.Combine(pluginsPath, file.FileName);
+
+            try
+            {
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    file.CopyTo(stream);
+                }
+                // FileSystemWatcher will handle loading, or trigger manually if needed
+                _toolManager.LoadNewPlugins(filePath);
+                return Ok($"Plugin {file.FileName} uploaded and loaded.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Failed to upload plugin: {ex.Message}");
+            }
+        }
+            }
 
     public class WifiRequest
     {

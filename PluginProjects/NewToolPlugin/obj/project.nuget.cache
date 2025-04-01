@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "oUmnFzrZcD0=",
+  "dgSpecHash": "viIE6qqD58I=",
   "success": true,
-  "projectFilePath": "C:\\Users\\X13\\Documents\\IT-Tool\\NewToolPlugin\\NewToolPlugin.csproj",
+  "projectFilePath": "C:\\Users\\X13\\Documents\\IT-Tool\\PluginProjects\\NewToolPlugin\\NewToolPlugin.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\X13\\.nuget\\packages\\microsoft.netcore.app.ref\\8.0.11\\microsoft.netcore.app.ref.8.0.11.nupkg.sha512",
     "C:\\Users\\X13\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\8.0.11\\microsoft.windowsdesktop.app.ref.8.0.11.nupkg.sha512",

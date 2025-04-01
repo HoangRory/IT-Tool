@@ -4,7 +4,9 @@
   "private": true,
   "proxy": "http://localhost:5074",
   "dependencies": {
+    "@babel/standalone": "^7.27.0",
     "axios": "^1.8.4",
+    "babel-install": "^2.1.0",
     "cra-template-tailwindcss": "4.0.1",
     "crypto-js": "^4.2.0",
     "lucide-react": "^0.484.0",

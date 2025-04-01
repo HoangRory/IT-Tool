@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("NewToolPlugin")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c54f39531112799312133c48036ee59141ed85dd")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+772e12cb30275b8d92f95ea4013b156ab7da9070")]
 [assembly: System.Reflection.AssemblyProductAttribute("NewToolPlugin")]
 [assembly: System.Reflection.AssemblyTitleAttribute("NewToolPlugin")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

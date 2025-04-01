@@ -4,6 +4,7 @@ import Home from "../pages/MainContent";
 import HashText from "../pages/HashText";
 import WifiQR from "../pages/WifiQR"; 
 import TokenGenerator from "../pages/TokenGenerator";
+import AddTool  from "../pages/AddTool";
 
 export default function AppRoutes() {
   return (
@@ -14,6 +15,7 @@ export default function AppRoutes() {
         <Route path="/hash-text" element={<HashText />} />
         <Route path="/wifi-qr" element={<WifiQR />} /> {/* Add this route */}
         <Route path="/token-generator" element={<TokenGenerator />} /> {/* Add this route */}
+        <Route path="/add-tool" element={<AddTool />} />
       </Route>
     </Routes>
   );

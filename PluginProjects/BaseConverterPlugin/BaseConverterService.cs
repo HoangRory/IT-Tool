@@ -11,6 +11,7 @@ namespace BaseConverterPlugin
         public string Name => "Integer Base Converter";
         public string Path => "/api/tools/base-converter";
         public string Category => "Math";
+        public string Description => "Convert a number between different bases (decimal, hexadecimal, binary, octal, base64, ...)";
 
         public async Task<object> ExecuteAsync(Dictionary<string, object> parameters)
         {

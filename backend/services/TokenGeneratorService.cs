@@ -12,8 +12,9 @@ namespace Backend.Services
         private const string SymbolChars = "!@#$%^&*()-_=+[]{}|;:,.<>?";
 
         public string Name => "Token Generator";
-        public string Path => "/api/tools/token";
+        public string Path => "/api/tools/token-generator";
         public string Category => "Crypto";
+        public string Description => "Generate random string with the chars you want, uppercase or lowercase letters, numbers and/or symbols.";
 
         public async Task<object> ExecuteAsync(Dictionary<string, object> parameters)
         {

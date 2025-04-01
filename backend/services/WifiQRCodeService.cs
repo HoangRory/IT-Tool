@@ -8,7 +8,7 @@ namespace Backend.Services
         public string Name => "WiFi QR Code Generator";
         public string Path => "/api/tools/wifi-qr";
         public string Category => "Image/Video";
-
+        public string Description => "Generate and download QR codes for quick connections to WiFi networks.";
         public async Task<object> ExecuteAsync(Dictionary<string, object> parameters)
         {
             if (!parameters.TryGetValue("SSID", out var ssidObj) || ssidObj is not string ssid || string.IsNullOrWhiteSpace(ssid))

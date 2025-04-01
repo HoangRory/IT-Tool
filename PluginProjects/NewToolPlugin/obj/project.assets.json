@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\X13\\Documents\\IT-Tool\\NewToolPlugin\\NewToolPlugin.csproj",
+      "projectUniqueName": "C:\\Users\\X13\\Documents\\IT-Tool\\PluginProjects\\NewToolPlugin\\NewToolPlugin.csproj",
       "projectName": "NewToolPlugin",
-      "projectPath": "C:\\Users\\X13\\Documents\\IT-Tool\\NewToolPlugin\\NewToolPlugin.csproj",
+      "projectPath": "C:\\Users\\X13\\Documents\\IT-Tool\\PluginProjects\\NewToolPlugin\\NewToolPlugin.csproj",
       "packagesPath": "C:\\Users\\X13\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\X13\\Documents\\IT-Tool\\NewToolPlugin\\obj\\",
+      "outputPath": "C:\\Users\\X13\\Documents\\IT-Tool\\PluginProjects\\NewToolPlugin\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\X13\\AppData\\Roaming\\NuGet\\NuGet.Config"

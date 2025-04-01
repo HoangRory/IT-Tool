@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\X13\\Documents\\IT-Tool\\BaseConverterPlugin\\BaseConverterPlugin.csproj",
+      "projectUniqueName": "C:\\Users\\X13\\Documents\\IT-Tool\\PluginProjects\\BaseConverterPlugin\\BaseConverterPlugin.csproj",
       "projectName": "BaseConverterPlugin",
-      "projectPath": "C:\\Users\\X13\\Documents\\IT-Tool\\BaseConverterPlugin\\BaseConverterPlugin.csproj",
+      "projectPath": "C:\\Users\\X13\\Documents\\IT-Tool\\PluginProjects\\BaseConverterPlugin\\BaseConverterPlugin.csproj",
       "packagesPath": "C:\\Users\\X13\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\X13\\Documents\\IT-Tool\\BaseConverterPlugin\\obj\\",
+      "outputPath": "C:\\Users\\X13\\Documents\\IT-Tool\\PluginProjects\\BaseConverterPlugin\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\X13\\AppData\\Roaming\\NuGet\\NuGet.Config"
