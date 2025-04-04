@@ -53,8 +53,7 @@ namespace Backend.Controllers
             {
                 return BadRequest(ModelState);
             }
-
-            var tool = _toolManager.GetTool("/api/tools/token");
+            var tool = _toolManager.GetTool("/api/tools/token-generator");
             if (tool == null)
                 return NotFound("Token Generator tool not found.");
 
