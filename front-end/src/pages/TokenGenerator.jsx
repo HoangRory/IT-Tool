@@ -16,7 +16,7 @@ export default function TokenGenerator() {
     setToken(null);
   
     try {
-      const response = await axios.post("/api/tools/token", {
+      const response = await axios.post("/api/tools/token-generator", {
         IncludeUppercase: uppercase,
         IncludeLowercase: lowercase,
         IncludeNumbers: numbers,
