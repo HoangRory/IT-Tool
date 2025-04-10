@@ -7,7 +7,7 @@ namespace Backend.Services
     {
         public string Name => "WiFi QR Code Generator";
         public string Path => "/api/tools/wifi-qr";
-        public string Category => "Image/Video";
+        public string Category => "Images & Videos";
         public string Description => "Generate and download QR codes for quick connections to WiFi networks.";
         public async Task<object> ExecuteAsync(Dictionary<string, object> parameters)
         {

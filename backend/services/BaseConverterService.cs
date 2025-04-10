@@ -12,7 +12,7 @@ namespace Backend.Services
 
         public string Name => "Integer Base Converter";
         public string Path => "/api/tools/base-converter";
-        public string Category => "Math";
+        public string Category => "Converter";
         public string Description => "Convert a number between different bases (decimal, hexadecimal, binary, octal, base64, and custom bases 2-64)";
 
         public async Task<object> ExecuteAsync(Dictionary<string, object> parameters)
