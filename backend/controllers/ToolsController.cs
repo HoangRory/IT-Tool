@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Backend.Services;
 using System.ComponentModel.DataAnnotations;
-using System.Collections.Generic;
 
 namespace Backend.Controllers
 {
@@ -17,209 +16,50 @@ namespace Backend.Controllers
         }
 
         [HttpPost("wifi-qr")]
-        public async Task<IActionResult> GenerateWifiQR([FromBody] WifiRequest request)
-        {
-            if (!ModelState.IsValid)
+        public Task<IActionResult> GenerateWifiQR([FromBody] WifiRequest request) =>
+            ExecuteToolAsync("/api/tools/wifi-qr", new()
             {
-                return BadRequest(ModelState);
-            }
-
-            var tool = _toolManager.GetTool("/api/tools/wifi-qr");
-            if (tool == null)
-                return NotFound("WiFi QR Code Generator tool not found.");
-
-            try
-            {
-                var parameters = new Dictionary<string, object>
-                {
-                    ["SSID"] = request.SSID,
-                    ["Password"] = request.Password
-                };
-                var result = await tool.ExecuteAsync(parameters);
-                if (result is byte[] bytes)
-                    return File(bytes, "image/png");
-                return BadRequest("Unexpected result format from WiFi QR tool.");
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
+                ["SSID"] = request.SSID,
+                ["Password"] = request.Password
+            }, result => result is byte[] bytes ? File(bytes, "image/png") : BadRequest("Invalid format."));
 
         [HttpPost("token-generator")]
-        public async Task<IActionResult> GenerateToken([FromBody] TokenRequest request)
-        {
-            if (!ModelState.IsValid)
+        public Task<IActionResult> GenerateToken([FromBody] TokenRequest request) =>
+            ExecuteToolAsync("/api/tools/token-generator", new()
             {
-                return BadRequest(ModelState);
-            }
-            var tool = _toolManager.GetTool("/api/tools/token-generator");
-            if (tool == null)
-                return NotFound("Token Generator tool not found.");
+                ["IncludeUppercase"] = request.IncludeUppercase,
+                ["IncludeLowercase"] = request.IncludeLowercase,
+                ["IncludeNumbers"] = request.IncludeNumbers,
+                ["IncludeSymbols"] = request.IncludeSymbols,
+                ["Length"] = request.Length
+            }, result =>
+            {
+                if (result is IDictionary<string, object> dict && dict.TryGetValue("Token", out var token))
+                    return Ok(new { Token = token });
+                return BadRequest("Invalid result format.");
+            });
 
-            try
-            {
-                var parameters = new Dictionary<string, object>
-                {
-                    ["IncludeUppercase"] = request.IncludeUppercase,
-                    ["IncludeLowercase"] = request.IncludeLowercase,
-                    ["IncludeNumbers"] = request.IncludeNumbers,
-                    ["IncludeSymbols"] = request.IncludeSymbols,
-                    ["Length"] = request.Length
-                };
-                var result = await tool.ExecuteAsync(parameters);
-                Console.WriteLine($"Result Type: {result?.GetType()?.FullName}");
-                if (result == null)
-                    return BadRequest("Result is null from Token Generator tool.");
-
-                if (result is IDictionary<string, object> tokenResult)
-                {
-                    Console.WriteLine("Result is IDictionary<string, object>");
-                    if (tokenResult.TryGetValue("Token", out var token))
-                    {
-                        Console.WriteLine($"Token: {token}");
-                        return Ok(new { Token = token });
-                    }
-                    else
-                    {
-                        Console.WriteLine("Token key not found in dictionary");
-                        return BadRequest("Token key not found in result.");
-                    }
-                }
-                Console.WriteLine("Result is not IDictionary<string, object>");
-                return BadRequest("Unexpected result format from Token Generator tool.");
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
-        [HttpPost("bcrypt-hash")]
-        public async Task<IActionResult> GenerateBcryptHash([FromBody] BcryptHashRequest request)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var parameters = new Dictionary<string, object>{
-                ["mode"] = "hash",
-                ["input"] = request.Input,
-                ["saltRounds"] = request.SaltRounds
-            };
-
-            var tool = _toolManager.GetTool("/api/tools/bcrypt");
-            if (tool == null)
-                return NotFound("Bcrypt Hash tool not found.");
-
-            try
-            {
-                var result = await tool.ExecuteAsync(parameters);
-                if (result == null)
-                    return BadRequest("Result is null from Bcrypt Hash tool.");
-                if (result is IDictionary<string, object> hashResult)
-                {
-                    if (hashResult.TryGetValue("Hash", out var hash))
-                    {
-                        return Ok(new { Hash = hash });
-                    }
-                    return BadRequest("Hash key not found in result.");
-                }
-                return BadRequest("Unexpected result format from Bcrypt Hash tool.");
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-        [HttpPost("bcrypt-compare")]
-        public async Task<IActionResult> CompareBcryptHash([FromBody] BcryptCompareRequest request)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var parameters = new Dictionary<string, object>
-            {
-                ["mode"] = "compare",
-                ["input"] = request.Input,
-                ["hash"] = request.Hash
-            };
-            var tool = _toolManager.GetTool("/api/tools/bcrypt");
-            if (tool == null)
-                return NotFound("Bcrypt Compare tool not found.");
-
-            try
-            {
-                var result = await tool.ExecuteAsync(parameters);
-                if (result is IDictionary<string, object> compareResult && compareResult.TryGetValue("Match", out var match))
-                {
-                    return Ok(new { Match = match });
-                }
-                return BadRequest("Unexpected result format from Bcrypt Compare tool.");
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-        [HttpGet("hash")]
-        public async Task<IActionResult> GenerateHash([FromQuery] HashRequest request)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var input = request.Input;
-            var encoding = request.Encoding;
-
-            if (string.IsNullOrWhiteSpace(input))
-                return BadRequest("Input text is required.");
-            if (string.IsNullOrWhiteSpace(encoding))
-                return BadRequest("Encoding type is required.");
-            var tool = _toolManager.GetTool("/api/tools/hash");
-            if (tool == null)
-                return NotFound("Hash Generator tool not found.");
-
-            try
-            {
-                var parameters = new Dictionary<string, object>
-                {
-                    ["Input"] = input,
-                    ["Encode"] = encoding
-                };
-                var result = await tool.ExecuteAsync(parameters);
-                if (result is IDictionary<string, object> hashResult && hashResult.TryGetValue("Hash", out var hash))
-                {
-                    return Ok(new { Hash = hash });
-                }
-                return BadRequest("Unexpected result format from Hash Generator tool.");
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
         [HttpPost("{toolPath}")]
-        public async Task<IActionResult> ExecuteTool(string toolPath, [FromBody] Dictionary<string, object> parameters)
-        {
-            var tool = _toolManager.GetTool($"/api/tools/{toolPath}");
-            if (tool == null)
-                return NotFound($"Tool '{toolPath}' not found.");
+        public Task<IActionResult> ExecuteToolDynamic(string toolPath, [FromBody] Dictionary<string, object> parameters) =>
+            ExecuteToolAsync($"/api/tools/{toolPath}", parameters, result =>
+            {
+                switch (result)
+                {
+                    case ContentResult contentResult:
+                        return contentResult;
 
-            try
-            {
-                var result = await tool.ExecuteAsync(parameters);
-                if (result is byte[] bytes)
-                    return File(bytes, "image/png");
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
+                    case byte[] bytes:
+                        var isJsFile = parameters.TryGetValue("returnType", out var returnType) &&
+                                    returnType?.ToString()?.ToLower() == "js";
+                        if (isJsFile)
+                            return File(bytes, "application/javascript", $"{toolPath}.js");
+
+                        return File(bytes, "image/png");
+
+                    default:
+                        return Ok(result);
+                }
+            });
 
         [HttpGet("list")]
         public IActionResult GetToolList()
@@ -247,7 +87,6 @@ namespace Backend.Controllers
                 {
                     file.CopyTo(stream);
                 }
-                // FileSystemWatcher will handle loading, or trigger manually if needed
                 _toolManager.LoadNewPlugins(filePath);
                 return Ok($"Plugin {file.FileName} uploaded and loaded.");
             }
@@ -256,7 +95,23 @@ namespace Backend.Controllers
                 return BadRequest($"Failed to upload plugin: {ex.Message}");
             }
         }
+        private async Task<IActionResult> ExecuteToolAsync(string path, Dictionary<string, object> parameters, Func<object, IActionResult> resultHandler)
+        {
+            var tool = _toolManager.GetTool(path);
+            if (tool == null)
+                return NotFound($"Tool '{path}' not found.");
+
+            try
+            {
+                var result = await tool.ExecuteAsync(parameters);
+                return resultHandler(result);
             }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+    }
 
     public class WifiRequest
     {

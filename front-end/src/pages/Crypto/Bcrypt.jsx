@@ -21,12 +21,13 @@ export default function BcryptTool() {
   
     const fetchCompare = async () => {
     try {
-      const response = await fetch("http://localhost:5074/api/tools/bcrypt-compare", {
+      const response = await fetch("http://localhost:5074/api/tools/bcrypt", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
+          mode: "compare",
           input: compareString,
           hash: compareHash
         })
@@ -51,12 +52,13 @@ export default function BcryptTool() {
 
     const fetchHash = async () => {
       try {
-        const response = await fetch("http://localhost:5074/api/tools/bcrypt-hash", {
+        const response = await fetch("http://localhost:5074/api/tools/bcrypt", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
+            mode: "hash",
             input: inputString,
             saltRounds: saltRounds
           })

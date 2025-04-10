@@ -26,10 +26,6 @@ export default function HashText() {
   const [copyStatus, setCopyStatus] = useState("");
 
   useEffect(() => {
-    if (!inputText) {
-      setHashResults({});
-      return;
-    }
 
     const fetchHash = async () => {
       try {

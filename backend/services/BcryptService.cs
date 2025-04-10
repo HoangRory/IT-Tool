@@ -31,8 +31,7 @@ namespace Backend.Services
 
                 var hashResult = new Dictionary<string, object>
                 {
-                    ["Hash"] = hash,
-                    ["SaltRounds"] = saltRounds
+                    ["hash"] = hash,
                 };
 
                 return await Task.FromResult(hashResult);
@@ -47,7 +46,7 @@ namespace Backend.Services
 
                 var compareResult = new Dictionary<string, object>
                 {
-                    ["Match"] = match
+                    ["match"] = match
                 };
 
                 return await Task.FromResult(compareResult);
