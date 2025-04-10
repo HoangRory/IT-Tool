@@ -1,4 +1,4 @@
-import "./index.css"; // Import CSS chung
+import "./main.css"; // Import CSS chung
 import React from "react";
 import ReactDOM from "react-dom";
 import { BrowserRouter } from "react-router-dom";
