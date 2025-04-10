@@ -46,7 +46,7 @@ namespace Backend.Controllers
             }
         }
 
-        [HttpPost("token")]
+        [HttpPost("token-generator")]
         public async Task<IActionResult> GenerateToken([FromBody] TokenRequest request)
         {
             if (!ModelState.IsValid)
