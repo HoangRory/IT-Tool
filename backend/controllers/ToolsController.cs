@@ -95,6 +95,112 @@ namespace Backend.Controllers
             }
         }
 
+        [HttpPost("bcrypt-hash")]
+        public async Task<IActionResult> GenerateBcryptHash([FromBody] BcryptHashRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var parameters = new Dictionary<string, object>{
+                ["mode"] = "hash",
+                ["input"] = request.Input,
+                ["saltRounds"] = request.SaltRounds
+            };
+
+            var tool = _toolManager.GetTool("/api/tools/bcrypt");
+            if (tool == null)
+                return NotFound("Bcrypt Hash tool not found.");
+
+            try
+            {
+                var result = await tool.ExecuteAsync(parameters);
+                if (result == null)
+                    return BadRequest("Result is null from Bcrypt Hash tool.");
+                if (result is IDictionary<string, object> hashResult)
+                {
+                    if (hashResult.TryGetValue("Hash", out var hash))
+                    {
+                        return Ok(new { Hash = hash });
+                    }
+                    return BadRequest("Hash key not found in result.");
+                }
+                return BadRequest("Unexpected result format from Bcrypt Hash tool.");
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpPost("bcrypt-compare")]
+        public async Task<IActionResult> CompareBcryptHash([FromBody] BcryptCompareRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var parameters = new Dictionary<string, object>
+            {
+                ["mode"] = "compare",
+                ["input"] = request.Input,
+                ["hash"] = request.Hash
+            };
+            var tool = _toolManager.GetTool("/api/tools/bcrypt");
+            if (tool == null)
+                return NotFound("Bcrypt Compare tool not found.");
+
+            try
+            {
+                var result = await tool.ExecuteAsync(parameters);
+                if (result is IDictionary<string, object> compareResult && compareResult.TryGetValue("Match", out var match))
+                {
+                    return Ok(new { Match = match });
+                }
+                return BadRequest("Unexpected result format from Bcrypt Compare tool.");
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpGet("hash")]
+        public async Task<IActionResult> GenerateHash([FromQuery] HashRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var input = request.Input;
+            var encoding = request.Encoding;
+
+            if (string.IsNullOrWhiteSpace(input))
+                return BadRequest("Input text is required.");
+            if (string.IsNullOrWhiteSpace(encoding))
+                return BadRequest("Encoding type is required.");
+            var tool = _toolManager.GetTool("/api/tools/hash");
+            if (tool == null)
+                return NotFound("Hash Generator tool not found.");
+
+            try
+            {
+                var parameters = new Dictionary<string, object>
+                {
+                    ["Input"] = input,
+                    ["Encode"] = encoding
+                };
+                var result = await tool.ExecuteAsync(parameters);
+                if (result is IDictionary<string, object> hashResult && hashResult.TryGetValue("Hash", out var hash))
+                {
+                    return Ok(new { Hash = hash });
+                }
+                return BadRequest("Unexpected result format from Hash Generator tool.");
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
         [HttpPost("{toolPath}")]
         public async Task<IActionResult> ExecuteTool(string toolPath, [FromBody] Dictionary<string, object> parameters)
         {
@@ -170,5 +276,26 @@ namespace Backend.Controllers
 
         [Range(1, 512, ErrorMessage = "Length must be between 1 and 512.")]
         public int Length { get; set; }
+    }
+    public class BcryptHashRequest
+    {
+        [Required(ErrorMessage = "Input is required.")]
+        public string Input { get; set; } = string.Empty;
+        [Required(ErrorMessage = "Salt rounds are required.")]
+        public int SaltRounds { get; set; } = 10;
+    }
+    public class BcryptCompareRequest
+    {
+        [Required(ErrorMessage = "Input is required.")]
+        public string Input { get; set; } = string.Empty;
+        [Required(ErrorMessage = "Hash is required.")]
+        public string Hash { get; set; } = string.Empty;
+    }
+    public class HashRequest
+    {
+        [Required(ErrorMessage = "Input is required.")]
+        public string Input { get; set; } = string.Empty;
+        [Required(ErrorMessage = "Encoding is required.")]
+        public string Encoding { get; set; } = string.Empty;
     }
 }

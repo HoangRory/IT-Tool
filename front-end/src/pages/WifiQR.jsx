@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye} from "lucide-react";
 
 export default function WifiQR() {
   const [ssid, setSsid] = useState("");
