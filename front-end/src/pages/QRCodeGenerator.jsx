@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import QRCode from 'qrcode';
 
 const QRCodeGenerator = () => {
   // State for form inputs and QR code result
@@ -7,54 +7,66 @@ const QRCodeGenerator = () => {
   const [backgroundColor, setBackgroundColor] = useState('#FFFFFF');
   const [foregroundColor, setForegroundColor] = useState('#000000');
   const [errorResistance, setErrorResistance] = useState('medium');
-  const [qrCodeUrl, setQrCodeUrl] = useState(''); // Store Blob URL
+  const [qrCodeUrl, setQrCodeUrl] = useState(''); // Store data URL for QR code
   const [error, setError] = useState(null); // Store error messages
 
-  // Function to generate QR code by calling the API with Axios
+  // Function to generate QR code using qrcode library
   const generateQRCode = async () => {
-    if (!text) {
-      setQrCodeUrl('');
-      setError(null);
+    setError(null);
+    setQrCodeUrl('');
+
+    if (!text.trim()) {
+      return;
+    }
+
+    // Map error resistance to QR code error correction levels
+    const errorCorrectionLevel = {
+      low: 'L',
+      medium: 'M',
+      quartile: 'Q',
+      high: 'H',
+    }[errorResistance] || 'M'; // Default to medium
+
+    // Validate colors (ensure they are valid hex)
+    const isValidHex = (hex) => /^#([0-9A-F]{3}){1,2}$/i.test(hex);
+    if (!isValidHex(backgroundColor) || !isValidHex(foregroundColor)) {
+      setError('Invalid color format. Use hex codes (e.g., #FFFFFF).');
       return;
     }
 
     try {
-      const response = await axios.post(
-        '/api/tools/qr-code-generator',
-        {
-          Text: text,
-          BackgroundColor: backgroundColor,
-          ForegroundColor: foregroundColor,
-          ErrorResistance: errorResistance,
+      // Generate QR code as a data URL
+      const qrCodeDataUrl = await QRCode.toDataURL(text, {
+        errorCorrectionLevel,
+        color: {
+          dark: foregroundColor, // Foreground color
+          light: backgroundColor, // Background color
         },
-        {
-          responseType: 'blob', // Expect a Blob response
-        }
-      );
+        width: 256, // Size of QR code
+        margin: 2, // Margin around QR code
+      });
 
-      // Create a URL from the Blob response
-      const url = URL.createObjectURL(response.data);
-      setQrCodeUrl(url);
-      setError(null);
+      setQrCodeUrl(qrCodeDataUrl);
     } catch (err) {
       console.error('Error generating QR code:', err);
-      setQrCodeUrl('');
-      setError(
-        err.response?.data || 'An error occurred while generating the QR code.'
-      );
+      setError('An error occurred while generating the QR code.');
     }
   };
 
-  // Trigger QR code generation whenever inputs change
+  // Trigger QR code generation whenever inputs change (debounced)
   useEffect(() => {
-    generateQRCode();
+    const debounce = setTimeout(() => {
+      generateQRCode();
+    }, 300);
+
+    return () => clearTimeout(debounce); // Cleanup timeout
   }, [text, backgroundColor, foregroundColor, errorResistance]);
 
-  // Clean up Blob URL when component unmounts or qrCodeUrl changes
+  // Clean up QR code URL when component unmounts
   useEffect(() => {
     return () => {
       if (qrCodeUrl) {
-        URL.revokeObjectURL(qrCodeUrl); // Prevent memory leaks
+        URL.revokeObjectURL(qrCodeUrl); // Prevent memory leaks (if needed)
       }
     };
   }, [qrCodeUrl]);

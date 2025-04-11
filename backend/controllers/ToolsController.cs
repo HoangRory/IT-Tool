@@ -15,29 +15,6 @@ namespace Backend.Controllers
             _toolManager = toolManager;
         }
 
-        [HttpPost("wifi-qr")]
-        public Task<IActionResult> GenerateWifiQR([FromBody] WifiRequest request) =>
-            ExecuteToolAsync("/api/tools/wifi-qr", new()
-            {
-                ["SSID"] = request.SSID,
-                ["Password"] = request.Password
-            }, result => result is byte[] bytes ? File(bytes, "image/png") : BadRequest("Invalid format."));
-
-        [HttpPost("token-generator")]
-        public Task<IActionResult> GenerateToken([FromBody] TokenRequest request) =>
-            ExecuteToolAsync("/api/tools/token-generator", new()
-            {
-                ["IncludeUppercase"] = request.IncludeUppercase,
-                ["IncludeLowercase"] = request.IncludeLowercase,
-                ["IncludeNumbers"] = request.IncludeNumbers,
-                ["IncludeSymbols"] = request.IncludeSymbols,
-                ["Length"] = request.Length
-            }, result =>
-            {
-                if (result is IDictionary<string, object> dict && dict.TryGetValue("Token", out var token))
-                    return Ok(new { Token = token });
-                return BadRequest("Invalid result format.");
-            });
 
         [HttpPost("{toolPath}")]
         public Task<IActionResult> ExecuteToolDynamic(string toolPath, [FromBody] Dictionary<string, object> parameters) =>
