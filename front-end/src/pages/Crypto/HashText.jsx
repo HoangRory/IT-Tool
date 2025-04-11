@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
+import { useHashTextLoader } from "../../hooks/useHashTextLoader"; // custom hook to load the hash function
 
 const encodingOptions = {
   "Hexadecimal (base 16)": "Hex",
@@ -24,33 +25,20 @@ export default function HashText() {
   const [selectedEncoding, setSelectedEncoding] = useState(Object.keys(encodingOptions)[0]); // Lưu tên hiển thị
   const [isOpen, setIsOpen] = useState(false);
   const [copyStatus, setCopyStatus] = useState("");
+  const hashFn = useHashTextLoader(); // custom hook to load the hash function
 
   useEffect(() => {
 
-    const fetchHash = async () => {
+    if (hashFn && inputText) {
       try {
-        const response = await fetch("http://localhost:5074/api/tools/hash-text", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            input: inputText,
-            encoding: encodingOptions[selectedEncoding] // Lấy giá trị thực tế (Hex, Base64...)
-          })
-        });
-
-        if (!response.ok) throw new Error("Error fetching hash");
-
-        const result = await response.json();
-        setHashResults(result.output || {});
+        const result = hashFn(inputText, selectedEncoding); // Call the loaded hash function
+        setHashResults(result.output); // Update state with the hash results
       } catch (error) {
-        console.error("Hashing error:", error);
-        setHashResults({});
+        console.error("Error hashing text:", error);
       }
-    };
-
-    fetchHash();
+    } else {
+      setHashResults({}); // Reset results if input is empty or hash function is not loaded
+    }
   }, [inputText, selectedEncoding]);
 
   const handleCopy = (text) => {
