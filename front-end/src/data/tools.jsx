@@ -1,4 +1,5 @@
 import axios from "axios";
+import React, { useState, useEffect } from "react";
 import { KeyRound, Hash, Lock, Code, Globe, Calendar, Ruler, Link, ShieldCheck, ImagePlay, QrCode } from "lucide-react";
 
 // Static fallback tools with icons and descriptions
@@ -131,4 +132,21 @@ let tools = staticTools;
   tools = await fetchToolsFromBackend();
 })();
 
-export { tools };
+function ToolFetcher() {
+  const [tools, setTools] = useState([]);
+
+  useEffect(() => {
+    fetch('http://localhost:5074/') // Backend root
+      .then(response => response.json())
+      .then(data => {
+        setTools(data); // Store the data in state (optional)
+        console.log('Fetched tools:', data); // Log the data
+      })
+      .catch(error => console.error('Error fetching tools:', error));
+  }, []); // Runs once on mount
+
+  // Return null to render nothing
+  return null;
+}
+
+export { tools, ToolFetcher };

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Backend.Services;
 using System.ComponentModel.DataAnnotations;
+using Backend.Models;
 
 namespace Backend.Controllers
 {
@@ -9,12 +10,31 @@ namespace Backend.Controllers
     public class ToolsController : ControllerBase
     {
         private readonly ToolManager _toolManager;
+        private readonly ToolService _toolService;
 
-        public ToolsController(ToolManager toolManager)
+        public ToolsController(ToolManager toolManager, ToolService toolService)
         {
             _toolManager = toolManager;
+            _toolService = toolService ?? throw new ArgumentNullException(nameof(toolService));
         }
 
+        // New route: GET api/tools
+        [HttpGet("/")]
+        [HttpGet("")]
+        public async Task<IActionResult> GetAllTools()
+        {
+            var tools = await _toolService.GetAllToolsAsync();
+            
+            // Print tools to console
+            Console.WriteLine("Fetched Tools:");
+            foreach (var tool in tools)
+            {
+                Console.WriteLine($"ID: {tool.Id}, Name: {tool.Name}");
+            }
+
+            return Ok(tools);
+        }
+    
 
         [HttpPost("{toolPath}")]
         public Task<IActionResult> ExecuteToolDynamic(string toolPath, [FromBody] Dictionary<string, object> parameters) =>
