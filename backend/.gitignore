@@ -23,4 +23,4 @@ packages/
 *.tmp
 
 # Sensitive data
-appsettings.json  
+appsettings.json
