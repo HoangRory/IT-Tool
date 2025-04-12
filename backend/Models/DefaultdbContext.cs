@@ -5,13 +5,13 @@ using Pomelo.EntityFrameworkCore.MySql.Scaffolding.Internal;
 
 namespace Backend.Models;
 
-public partial class DbIttoolContext : DbContext
+public partial class DefaultdbContext : DbContext
 {
-    public DbIttoolContext()
+    public DefaultdbContext()
     {
     }
 
-    public DbIttoolContext(DbContextOptions<DbIttoolContext> options)
+    public DefaultdbContext(DbContextOptions<DefaultdbContext> options)
         : base(options)
     {
     }
@@ -19,7 +19,7 @@ public partial class DbIttoolContext : DbContext
     public virtual DbSet<Tool> Tools { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseMySql("name=Default", Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.0.40-mysql"));
+        => optionsBuilder.UseMySql("name=Default", Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.0.35-mysql"));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

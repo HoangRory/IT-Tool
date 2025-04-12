@@ -10,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 // Register DbContext
-builder.Services.AddDbContext<DbIttoolContext>(options =>
+builder.Services.AddDbContext<DefaultdbContext>(options =>
     options.UseMySql(builder.Configuration.GetConnectionString("Default"),
         ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("Default"))));
 

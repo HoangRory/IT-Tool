@@ -4,10 +4,10 @@ namespace Backend.Models // Adjust namespace to match your project
 {
     public class ToolService
     {
-        private readonly DbIttoolContext _context;
+        private readonly DefaultdbContext _context;
 
         // Constructor with dependency injection for DbContext
-        public ToolService(DbIttoolContext context)
+        public ToolService(DefaultdbContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
