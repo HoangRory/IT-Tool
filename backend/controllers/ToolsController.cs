@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Backend.Services;
 using System.ComponentModel.DataAnnotations;
+using Backend.Models;
 
 namespace Backend.Controllers
 {
@@ -9,35 +10,31 @@ namespace Backend.Controllers
     public class ToolsController : ControllerBase
     {
         private readonly ToolManager _toolManager;
+        private readonly ToolService _toolService;
 
-        public ToolsController(ToolManager toolManager)
+        public ToolsController(ToolManager toolManager, ToolService toolService)
         {
             _toolManager = toolManager;
+            _toolService = toolService ?? throw new ArgumentNullException(nameof(toolService));
         }
 
-        [HttpPost("wifi-qr")]
-        public Task<IActionResult> GenerateWifiQR([FromBody] WifiRequest request) =>
-            ExecuteToolAsync("/api/tools/wifi-qr", new()
+        // New route: GET api/tools
+        [HttpGet("/")]
+        [HttpGet("")]
+        public async Task<IActionResult> GetAllTools()
+        {
+            var tools = await _toolService.GetAllToolsAsync();
+            
+            // Print tools to console
+            Console.WriteLine("Fetched Tools:");
+            foreach (var tool in tools)
             {
-                ["SSID"] = request.SSID,
-                ["Password"] = request.Password
-            }, result => result is byte[] bytes ? File(bytes, "image/png") : BadRequest("Invalid format."));
+                Console.WriteLine($"ID: {tool.Id}, Name: {tool.Name}");
+            }
 
-        [HttpPost("token-generator")]
-        public Task<IActionResult> GenerateToken([FromBody] TokenRequest request) =>
-            ExecuteToolAsync("/api/tools/token-generator", new()
-            {
-                ["IncludeUppercase"] = request.IncludeUppercase,
-                ["IncludeLowercase"] = request.IncludeLowercase,
-                ["IncludeNumbers"] = request.IncludeNumbers,
-                ["IncludeSymbols"] = request.IncludeSymbols,
-                ["Length"] = request.Length
-            }, result =>
-            {
-                if (result is IDictionary<string, object> dict && dict.TryGetValue("Token", out var token))
-                    return Ok(new { Token = token });
-                return BadRequest("Invalid result format.");
-            });
+            return Ok(tools);
+        }
+    
 
         [HttpPost("{toolPath}")]
         public Task<IActionResult> ExecuteToolDynamic(string toolPath, [FromBody] Dictionary<string, object> parameters) =>

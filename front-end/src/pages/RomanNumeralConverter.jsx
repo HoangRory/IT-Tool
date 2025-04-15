@@ -1,6 +1,4 @@
-// RomanNumeralConverter.jsx
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 
 export default function RomanNumeralConverter() {
   const [arabicInput, setArabicInput] = useState("");
@@ -10,6 +8,34 @@ export default function RomanNumeralConverter() {
   const [arabicError, setArabicError] = useState("");
   const [romanError, setRomanError] = useState("");
 
+  // Roman numeral mappings
+  const RomanValues = {
+    I: 1,
+    V: 5,
+    X: 10,
+    L: 50,
+    C: 100,
+    D: 500,
+    M: 1000,
+  };
+
+  const DecimalToRoman = [
+    [1000, "M"],
+    [900, "CM"],
+    [500, "D"],
+    [400, "CD"],
+    [100, "C"],
+    [90, "XC"],
+    [50, "L"],
+    [40, "XL"],
+    [10, "X"],
+    [9, "IX"],
+    [5, "V"],
+    [4, "IV"],
+    [1, "I"],
+  ];
+
+  // Debounce function
   const debounce = (func, delay) => {
     let timeoutId;
     return (...args) => {
@@ -18,7 +44,54 @@ export default function RomanNumeralConverter() {
     };
   };
 
-  const convertNumber = async (input, type) => {
+  // Check if input is a valid Roman numeral
+  const isRomanNumeral = (input) => {
+    const upperInput = input.toUpperCase();
+    return upperInput.split("").every((char) => Object.keys(RomanValues).includes(char));
+  };
+
+  // Convert Roman numeral to decimal
+  const romanToDecimal = (roman) => {
+    const upperRoman = roman.toUpperCase();
+    let result = 0;
+    let prevValue = 0;
+
+    for (let i = upperRoman.length - 1; i >= 0; i--) {
+      const currentValue = RomanValues[upperRoman[i]];
+      if (currentValue >= prevValue) {
+        result += currentValue;
+      } else {
+        result -= currentValue;
+      }
+      prevValue = currentValue;
+    }
+
+    // Validate the result
+    if (result < 1 || result > 3999 || decimalToRoman(result) !== upperRoman) {
+      throw new Error("Invalid Roman numeral sequence");
+    }
+
+    return result;
+  };
+
+  // Convert decimal to Roman numeral
+  const decimalToRoman = (number) => {
+    if (number < 1 || number > 3999) {
+      throw new Error("Number must be between 1 and 3999");
+    }
+
+    let roman = "";
+    for (const [value, symbol] of DecimalToRoman) {
+      while (number >= value) {
+        roman += symbol;
+        number -= value;
+      }
+    }
+    return roman;
+  };
+
+  // Main conversion function
+  const convertNumber = (input, type) => {
     if (type === "arabic") {
       setArabicError("");
       setArabicResult("");
@@ -30,19 +103,29 @@ export default function RomanNumeralConverter() {
     if (!input.trim()) return;
 
     try {
-      const response = await axios.post("/api/tools/roman-numeral-converter", {
-        Input: input.trim(),
-      });
-
-      if (type === "arabic" && response.data.InputType === "Decimal") {
-        setArabicResult(response.data.Roman);
-      } else if (type === "roman" && response.data.InputType === "Roman") {
-        setRomanResult(response.data.Decimal);
+      if (type === "arabic") {
+        // Try converting from decimal to Roman
+        const number = parseInt(input.trim());
+        if (isNaN(number)) {
+          throw new Error("Input must be a valid number");
+        }
+        const romanValue = decimalToRoman(number);
+        setArabicResult(romanValue);
+      } else {
+        // Try converting from Roman to decimal
+        if (!isRomanNumeral(input)) {
+          throw new Error("Input contains invalid Roman numeral characters");
+        }
+        const decimalValue = romanToDecimal(input);
+        setRomanResult(decimalValue.toString());
       }
     } catch (err) {
-      const errorMsg = err.response?.data?.message || "Invalid input";
-      if (type === "arabic") setArabicError(errorMsg);
-      else setRomanError(errorMsg);
+      const errorMsg = err.message || "Invalid input";
+      if (type === "arabic") {
+        setArabicError(errorMsg);
+      } else {
+        setRomanError(errorMsg);
+      }
     }
   };
 
@@ -58,8 +141,10 @@ export default function RomanNumeralConverter() {
   }, [romanInput]);
 
   const copyToClipboard = (text) => {
-    navigator.clipboard.writeText(text);
-    alert("Copied to clipboard!");
+    if (text) {
+      navigator.clipboard.writeText(text);
+      alert("Copied to clipboard!");
+    }
   };
 
   return (
@@ -90,7 +175,9 @@ export default function RomanNumeralConverter() {
             onClick={() => copyToClipboard(arabicResult)}
             disabled={!arabicResult}
             className={`p-2 rounded ${
-              arabicResult ? "bg-blue-500 text-white hover:bg-blue-600" : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              arabicResult
+                ? "bg-blue-500 text-white hover:bg-blue-600"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
             }`}
           >
             Copy
@@ -119,7 +206,9 @@ export default function RomanNumeralConverter() {
             onClick={() => copyToClipboard(romanResult)}
             disabled={!romanResult}
             className={`p-2 rounded ${
-              romanResult ? "bg-blue-500 text-white hover:bg-blue-600" : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              romanResult
+                ? "bg-blue-500 text-white hover:bg-blue-600"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
             }`}
           >
             Copy

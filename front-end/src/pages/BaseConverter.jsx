@@ -1,14 +1,15 @@
-// IntegerBaseConverter.jsx
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 
 export default function IntegerBaseConverter() {
   const [number, setNumber] = useState("");
   const [inputBase, setInputBase] = useState("10");
-  const [customOutputBase, setCustomOutputBase] = useState(""); // New state for custom output base
+  const [customOutputBase, setCustomOutputBase] = useState("");
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
 
+  const DIGITS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/";
+
+  // Debounce function to delay execution
   const debounce = (func, delay) => {
     let timeoutId;
     return (...args) => {
@@ -17,7 +18,47 @@ export default function IntegerBaseConverter() {
     };
   };
 
-  const convertNumber = async (num, inBase, outBase) => {
+  // Parse number from custom base to decimal
+  const parseFromCustomBase = (number, fromBase) => {
+    let num = number.trim().toUpperCase();
+    const isNegative = num.startsWith("-");
+    if (isNegative) num = num.substring(1);
+
+    let result = 0;
+    for (let i = 0; i < num.length; i++) {
+      const digitValue = DIGITS.indexOf(num[i]);
+      if (digitValue < 0 || digitValue >= fromBase) {
+        throw new Error(`Invalid digit '${num[i]}' for base ${fromBase}`);
+      }
+      result = result * fromBase + digitValue;
+    }
+
+    return isNegative ? -result : result;
+  };
+
+  // Convert decimal to custom base
+  const convertToCustomBase = (value, baseValue) => {
+    if (baseValue < 2 || baseValue > 64) {
+      throw new Error("Base must be between 2 and 64");
+    }
+
+    if (value === 0) return "0";
+
+    const isNegative = value < 0;
+    value = Math.abs(value);
+    let result = "";
+
+    while (value > 0) {
+      const remainder = value % baseValue;
+      result = DIGITS[remainder] + result;
+      value = Math.floor(value / baseValue);
+    }
+
+    return isNegative ? "-" + result : result;
+  };
+
+  // Main conversion logic
+  const convertNumber = (num, inBase, outBase) => {
     setError(null);
     setResult(null);
 
@@ -31,7 +72,6 @@ export default function IntegerBaseConverter() {
       return;
     }
 
-    // Optional custom output base validation
     let parsedOutputBase = outBase ? parseInt(outBase) : null;
     if (outBase && (isNaN(parsedOutputBase) || parsedOutputBase < 2 || parsedOutputBase > 64)) {
       setError("Custom output base must be a number between 2 and 64");
@@ -39,15 +79,27 @@ export default function IntegerBaseConverter() {
     }
 
     try {
-      const response = await axios.post("/api/tools/base-converter", {
-        Number: num.trim(),
-        Base: parsedInputBase,
-        CustomBase: parsedOutputBase // Send custom output base if provided
-      });
-      setResult(response.data);
+      // Parse input to decimal
+      const decimalValue = parseFromCustomBase(num.trim(), parsedInputBase);
+
+      // Prepare results
+      const result = {
+        Binary: decimalValue.toString(2),
+        Octal: decimalValue.toString(8),
+        Decimal: decimalValue.toString(),
+        Hexadecimal: decimalValue.toString(16).toLowerCase(),
+        Base64: convertToCustomBase(decimalValue, 64),
+      };
+
+      // Handle custom base if provided
+      if (parsedOutputBase) {
+        result.CustomBase = convertToCustomBase(decimalValue, parsedOutputBase);
+        result.CustomBaseNumber = parsedOutputBase.toString();
+      }
+
+      setResult(result);
     } catch (err) {
-        console.log(err);
-      setError(err.response?.data?.message || "Invalid number for the selected base");
+      setError(err.message || "Invalid number for the selected base");
     }
   };
 

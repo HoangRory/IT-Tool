@@ -1,16 +1,30 @@
 using Backend.Services;
+using Backend.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.IO;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add services to the container
 builder.Services.AddControllers();
+
+// Register DbContext
+builder.Services.AddDbContext<DefaultdbContext>(options =>
+    options.UseMySql(builder.Configuration.GetConnectionString("Default"),
+        ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("Default"))));
+
+// Register ToolService
+builder.Services.AddScoped<ToolService>();
+
+// Register ToolManager as singleton
 builder.Services.AddSingleton<ToolManager>(sp =>
 {
     var manager = new ToolManager("plugins"); // Loads existing DLLs here
     return manager;
 });
 
+// Configure CORS for React frontend
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReact", policy =>
@@ -47,6 +61,7 @@ watcher.Deleted += (s, e) =>
     toolManager.UnloadPlugin(e.FullPath);
 };
 
+// Configure the HTTP request pipeline
 app.UseCors("AllowReact");
 app.UseAuthorization();
 app.MapControllers();

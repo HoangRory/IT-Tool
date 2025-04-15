@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { ChevronDown, ChevronRight } from "lucide-react";
-import { tools } from "../data/tools"; // Import từ file tools.js
+import { tools,ToolFetcher } from "../data/tools"; // Import từ file tools.js
 
 export default function Sidebar() {
   const [openSections, setOpenSections] = useState({});
@@ -20,6 +20,7 @@ export default function Sidebar() {
         <h2 className="text-xl font-bold cursor-pointer hover:text-gray-300">
           IT - TOOLS
         </h2>
+        <ToolFetcher />
       </Link>
       <nav>
         <ul className="mt-4 space-y-2">

@@ -10,6 +10,7 @@ import RomanNumeralConverter from "../pages/RomanNumeralConverter";
 import ColorConverter from "../pages/ColorConverter";
 import QRCodeGenerator from "../pages/QRCodeGenerator";
 import URLParser from "../pages/Web/URLparser";
+import IPv4SubnetCalculator from "../pages/IPv4SubnetCal";
 import AddTool  from "../pages/AddTool";
 
 export default function AppRoutes() {
@@ -27,6 +28,7 @@ export default function AppRoutes() {
         <Route path="color-converter" element={<ColorConverter />} /> {/* Add this route */}
         <Route path="qr-code-generator" element={<QRCodeGenerator />} /> {/* Add this route */}
         <Route path="url-parser" element={<URLParser />} /> {/* Add this route */}
+        <Route path="ipv4-subnet-calculator" element={<IPv4SubnetCalculator />} /> {/* Add this route */}
         <Route path="/add-tool" element={<AddTool />} />
       </Route>
     </Routes>

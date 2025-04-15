@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import axios from "axios";
+import React, { useState, useEffect } from "react";
 
 export default function TokenGenerator() {
   const [uppercase, setUppercase] = useState(false);
@@ -10,28 +9,72 @@ export default function TokenGenerator() {
   const [token, setToken] = useState(null);
   const [error, setError] = useState(null);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  // Define character sets
+  const UPPERCASE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const LOWERCASE_CHARS = "abcdefghijklmnopqrstuvwxyz";
+  const NUMBER_CHARS = "0123456789";
+  const SYMBOL_CHARS = "!@#$%^&*()-_=+[]{}|;:,.<>?";
+
+  // Debounce function to delay token generation
+  const debounce = (func, delay) => {
+    let timeoutId;
+    return (...args) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => func(...args), delay);
+    };
+  };
+
+  // Generate random token
+  const generateToken = () => {
     setError(null);
     setToken(null);
-  
+
+    // Build character pool
+    let charPool = "";
+    if (uppercase) charPool += UPPERCASE_CHARS;
+    if (lowercase) charPool += LOWERCASE_CHARS;
+    if (numbers) charPool += NUMBER_CHARS;
+    if (symbols) charPool += SYMBOL_CHARS;
+
+    if (charPool.length === 0) {
+      setError("At least one character type must be selected.");
+      return;
+    }
+
+    if (length < 1 || length > 512) {
+      setError("Length must be between 1 and 512.");
+      return;
+    }
+
     try {
-      const response = await axios.post("/api/tools/token-generator", {
-        IncludeUppercase: uppercase,
-        IncludeLowercase: lowercase,
-        IncludeNumbers: numbers,
-        IncludeSymbols: symbols,
-        Length: length,
-      });
-      console.log("Response:", response); // Log full response
-      console.log("Token:", response.data.token); // Log the token specifically
-      setToken(response.data.token);
+      // Generate random bytes
+      const randomBytes = new Uint8Array(length);
+      crypto.getRandomValues(randomBytes);
+
+      // Build token
+      const poolArray = charPool.split("");
+      let result = "";
+      for (let i = 0; i < length; i++) {
+        const index = randomBytes[i] % poolArray.length;
+        result += poolArray[index];
+      }
+
+      setToken(result);
     } catch (err) {
-      console.error("Error:", err); // Log any errors
-      setError(err.response?.data || "An error occurred while generating the token.");
+      console.error("Error generating token:", err);
+      setError("An error occurred while generating the token.");
     }
   };
 
+  // Debounced token generation
+  const debouncedGenerateToken = debounce(generateToken, 300);
+
+  // Trigger generation on input changes
+  useEffect(() => {
+    debouncedGenerateToken();
+  }, [uppercase, lowercase, numbers, symbols, length]);
+
+  // Handle copy to clipboard
   const handleCopy = () => {
     if (token) {
       navigator.clipboard.writeText(token);
@@ -39,9 +82,15 @@ export default function TokenGenerator() {
     }
   };
 
+  // Handle refresh (re-generate token)
   const handleRefresh = () => {
-    setToken(null);
-    handleSubmit({ preventDefault: () => {} }); // Trigger generation again
+    generateToken();
+  };
+
+  // Handle form submission (for manual generation)
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    generateToken();
   };
 
   return (
@@ -130,14 +179,14 @@ export default function TokenGenerator() {
               <div className="mt-4 flex justify-center gap-4">
                 <button
                   onClick={handleCopy}
-                  type="button" // Prevent form submission
+                  type="button"
                   className="px-4 py-2 bg-black text-white font-semibold rounded-md shadow hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
                 >
                   Copy
                 </button>
                 <button
                   onClick={handleRefresh}
-                  type="button" // Prevent form submission
+                  type="button"
                   className="px-4 py-2 bg-black text-white font-semibold rounded-md shadow hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
                 >
                   Refresh
@@ -145,13 +194,6 @@ export default function TokenGenerator() {
               </div>
             </div>
           )}
-
-          <button
-            type="submit"
-            className="w-full px-4 py-2 bg-black text-white font-semibold rounded-md shadow hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
-          >
-            Generate Token
-          </button>
         </form>
       </div>
     </div>
