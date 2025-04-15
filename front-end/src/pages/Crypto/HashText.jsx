@@ -1,6 +1,5 @@
 import { useState, useEffect, use } from "react";
-import { useHashTextLoader } from "../../hooks/useHashTextLoader"; // custom hook to load the hash function
-
+import { useDynamicToolLoader } from "../../hooks/useDynamicToolLoader"; // Hook tải hàm hash từ server
 const encodingOptions = {
   "Hexadecimal (base 16)": "Hex",
   "Binary (base 2)": "Binary",
@@ -25,7 +24,7 @@ export default function HashText() {
   const [selectedEncoding, setSelectedEncoding] = useState(Object.keys(encodingOptions)[0]); // Lưu tên hiển thị
   const [isOpen, setIsOpen] = useState(false);
   const [copyStatus, setCopyStatus] = useState("");
-  const hashFn = useHashTextLoader(); // custom hook to load the hash function
+  const hashFn = useDynamicToolLoader("hash-text", "hashText");
 
   useEffect(() => {
 

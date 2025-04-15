@@ -1,23 +1,23 @@
 
 import React, {useEffect, useState } from "react";
-import { useURLParserLoader } from "../../hooks/useURLParserLoader";
+import { useDynamicToolLoader } from "../../hooks/useDynamicToolLoader"; // Hook tải hàm hash từ server
 
 export default function UrlParser() {
     const [urlInput, setUrlInput] = useState("https://me:pwd@it-tools.tech:3000/url-parser?key1=value&key2=value2#the-hash");
     const [parsed, setParsed] = useState(null);
-    const parserFn = useURLParserLoader(); // custom hook to load the parser function
-   
-    // call parserFn when urlInput changes
+    const parserUrl = useDynamicToolLoader("url-parser", "parseUrl");
+
+    // call parserUrl when urlInput changes
     useEffect(() => {
-        if (parserFn && urlInput) {
+        if (parserUrl && urlInput) {
             try {
-                const result = parserFn(urlInput); // vì parseUrl không phải async
+                const result = parserUrl(urlInput); // vì parseUrl không phải async
                 setParsed(result);
             } catch (error) {
                 setParsed({ error: error.message });
             }
         }
-    }, [urlInput, parserFn]);
+    }, [urlInput, parserUrl]);
 
 
     return (

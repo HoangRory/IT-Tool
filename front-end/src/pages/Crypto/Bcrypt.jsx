@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import {toast, ToastContainer} from "react-toastify";
 import { Input } from "../../components/ui/Input";
 import { Button } from "../../components/ui/Button";
+import { useDynamicToolLoader } from "../../hooks/useDynamicToolLoader";
 
 export default function BcryptTool() {
   const [inputString, setInputString] = useState("");
@@ -10,86 +11,64 @@ export default function BcryptTool() {
 
   const [compareString, setCompareString] = useState("");
   const [compareHash, setCompareHash] = useState("");
-  const [isMatch, setIsMatch] = useState(null);
+  const [isMatch, setIsMatch] = useState(false);
+  const bcryptFn = useDynamicToolLoader("bcrypt", "bcryptTool");
 
 
   useEffect(() => {
-    if (!compareString || !compareHash) {
-      setIsMatch(null);
-      return;
-    }
-  
-    const fetchCompare = async () => {
-    try {
-      const response = await fetch("http://localhost:5074/api/tools/bcrypt", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          mode: "compare",
-          input: compareString,
-          hash: compareHash
-        })
-      });
-  
-      if (!response.ok) throw new Error("Error comparing hash");
-  
-      const result = await response.json();
-      setIsMatch(result.match);
-    } catch (error) {
-      console.error("Comparing error:", error);
-      setIsMatch(null);
-    }}
-    fetchCompare();
-  }, [compareString, compareHash]);
-
-  useEffect(() => {
-    if (!inputString) {
-      setHashedValue("");
-      return;
-    }
-
-    const fetchHash = async () => {
-      try {
-        const response = await fetch("http://localhost:5074/api/tools/bcrypt", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
+    const doHash = async () => {
+      if (bcryptFn) {
+        try {
+          const result = await bcryptFn({
             mode: "hash",
             input: inputString,
             saltRounds: saltRounds
-          })
-        });
-
-        if (!response.ok) throw new Error("Error fetching hash");
-
-        const result = await response.json();
-        setHashedValue(result.hash || {});
-      } catch (error) {
-        console.error("Hashing error:", error);
-        setHashedValue("");
+          });
+          console.log("Hash result:", result);
+          setHashedValue(result.hash);
+        } catch (error) {
+          console.error("Error hashing string:", error);
+          setHashedValue("");
+        }
       }
     };
+  
+    doHash();
+  }, [inputString, saltRounds, bcryptFn]);
 
-    fetchHash();
-    }, [inputString, saltRounds]);
-
-
+  useEffect(() => {
+    const doCompare = async () => {
+      if (bcryptFn) {
+        try {
+          const result = await bcryptFn({
+            mode: "compare",
+            input: compareString,
+            hash: compareHash,
+          });
+          setIsMatch(result.match);
+        } catch (error) {
+          console.error("Error comparing string:", error);
+          setIsMatch(null);
+        }
+      }
+    };
+  
+    doCompare();
+  }, [compareString, compareHash, bcryptFn]);
+  
   return (
     <div className="max-w-xl mx-auto p-6 space-y-10">
       <div>
-        <h2 className="text-2xl font-semibold mb-2">Hash</h2>
+        <h2 className="text-2xl font-semibold mb-2">Bcrypt</h2>
         <p className="text-sm text-gray-600 mb-4">
           Hash and compare text string using bcrypt. Bcrypt is a password-hashing function based on the Blowfish cipher.
         </p>
         <div className="bg-white shadow-md rounded-xl p-6 space-y-4">
+          <h3 className="text-2xl font-semibold mb-2">Hash</h3>
             <div className="flex items-center space-x-2">
                 <span className="text-sm text-gray-700 whitespace-nowrap">Your string:</span>
                 <Input
-                    value ={inputString}
+                    value = {inputString}
                     onChange={(e) => setInputString(e.target.value)}
                     type="text"
                     placeholder="Your string to hash..."
@@ -107,7 +86,8 @@ export default function BcryptTool() {
             </div>
             
             <div className="space-y-4">
-              <Input value={hashedValue} readOnly  />
+              <Input value={hashedValue}
+              readOnly  />
               <Button
                 variant="primary"
                 //onclick là copy vào clipboard
@@ -125,8 +105,8 @@ export default function BcryptTool() {
       </div>
 
       <div>
-        <h2 className="text-2xl font-semibold mb-2">Compare string with hash</h2>
         <div className="bg-white shadow-md rounded-xl p-6 space-y-4">
+          <h3 className="text-2xl font-semibold mb-2">Compare</h3>
           <Input
             placeholder="Your string to compare..."
             value={compareString}

@@ -11,50 +11,21 @@ namespace Backend.Services
 
         public async Task<object> ExecuteAsync(Dictionary<string, object> parameters)
         {
-            if (!parameters.TryGetValue("mode", out var modeObj))
-                throw new ArgumentException("Missing 'mode' parameter. Use 'hash' or 'compare'.");
-
-            string mode = modeObj.ToString()?.ToLower() ?? "";
-
-            if (!parameters.TryGetValue("input", out var inputObj))
-                throw new ArgumentException("Missing 'input' parameter.");
-
-            string text = inputObj.ToString() ?? string.Empty;
-
-            if (mode == "hash")
+            if (parameters.TryGetValue("returnType", out var returnType) &&
+                returnType?.ToString()?.ToLower() == "js")
             {
-                if (!parameters.TryGetValue("saltRounds", out var saltObj))
-                    throw new ArgumentException("Missing 'saltRounds' parameter for hash mode.");
+                var jsPath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "tools", "bcrypt.bundle.js");
+                if (!File.Exists(jsPath))
+                    throw new FileNotFoundException($"JS file not found: {jsPath}");
 
-                int saltRounds = int.Parse(saltObj.ToString() ?? string.Empty);
-                string hash = BCrypt.Net.BCrypt.HashPassword(text, saltRounds);
-
-                var hashResult = new Dictionary<string, object>
+                return new Microsoft.AspNetCore.Mvc.ContentResult
                 {
-                    ["hash"] = hash,
+                    Content = await File.ReadAllTextAsync(jsPath),
+                    ContentType = "application/javascript",
+                    StatusCode = 200
                 };
-
-                return await Task.FromResult(hashResult);
             }
-            else if (mode == "compare")
-            {
-                if (!parameters.TryGetValue("hash", out var hashObj))
-                    throw new ArgumentException("Missing 'hash' parameter for compare mode.");
-
-                string hash = hashObj.ToString() ?? string.Empty;
-                bool match = BCrypt.Net.BCrypt.Verify(text, hash);
-
-                var compareResult = new Dictionary<string, object>
-                {
-                    ["match"] = match
-                };
-
-                return await Task.FromResult(compareResult);
-            }
-            else
-            {
-                throw new ArgumentException("Invalid mode. Use 'hash' or 'compare'.");
-            }
+            return new { error = "Only returnType: js is supported." };
         }
     }
 }
