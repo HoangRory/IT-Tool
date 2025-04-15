@@ -1,22 +1,23 @@
-using System.Security.Cryptography;
-using System.Text;
-using Org.BouncyCastle.Crypto.Digests;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace Backend.Services
 {
-    class HashText : ITool
+    public class JWTParser : ITool
     {
-        public string Name => "Hash Text";
-        public string Path => "/api/tools/hash-text";
-        public string Category => "Crypto";
-        public string Description => "Generate hashes of the input text using various algorithms.";
+        public string Name => "JWT Parser";
+        public string Path => "/api/tools/jwt-parser";
+        public string Category => "Web";
+        public string Description => "Parse and decode your JSON Web Token (jwt) and display its content.";
 
         public async Task<object> ExecuteAsync(Dictionary<string, object> parameters)
         {
             if (parameters.TryGetValue("returnType", out var returnType) &&
                 returnType?.ToString()?.ToLower() == "js")
             {
-                var jsPath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "tools", "hash-text.js");
+                var jsPath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "tools", "jwt-parser.js");
                 if (!File.Exists(jsPath))
                     throw new FileNotFoundException($"JS file not found: {jsPath}");
 
@@ -26,7 +27,9 @@ namespace Backend.Services
                     ContentType = "application/javascript",
                     StatusCode = 200
                 };
+
             }
+
             return new { error = "Only returnType: js is supported." };
         }
     }

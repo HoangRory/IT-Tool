@@ -14,7 +14,7 @@ namespace Backend.Services
             if (parameters.TryGetValue("returnType", out var returnType) &&
                 returnType?.ToString()?.ToLower() == "js")
             {
-                var jsPath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "tools", "bcrypt.bundle.js");
+                var jsPath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "tools", "bcrypt.js");
                 if (!File.Exists(jsPath))
                     throw new FileNotFoundException($"JS file not found: {jsPath}");
 
