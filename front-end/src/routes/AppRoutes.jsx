@@ -13,6 +13,7 @@ import URLParser from "../pages/Web/URLparser";
 import IPv4SubnetCalculator from "../pages/IPv4SubnetCal";
 import JWTParser from "../pages/Web/JWTparser";
 import BasicAuthGenerator from "../pages/Web/BasicAuthGenerator";
+import JSONMinify from "../pages/Development/JSONminify";
 import AddTool  from "../pages/AddTool";
 
 export default function AppRoutes() {
@@ -33,6 +34,7 @@ export default function AppRoutes() {
         <Route path="/jwt-parser" element={<JWTParser />} /> {/* Add this route */}
         <Route path="/basic-auth-generator" element={<BasicAuthGenerator />} /> {/* Add this route */}
         <Route path="ipv4-subnet-calculator" element={<IPv4SubnetCalculator />} /> {/* Add this route */}
+        <Route path="/json-minify" element={<JSONMinify />} /> {/* Add this route */}
         <Route path="/add-tool" element={<AddTool />} />
       </Route>
     </Routes>

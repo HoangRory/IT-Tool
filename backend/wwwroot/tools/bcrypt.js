@@ -1847,16 +1847,17 @@ var require_bcrypt = __commonJS({
 
 // bcrypt.js
 var import_bcryptjs = __toESM(require_bcrypt(), 1);
-async function bcryptTool(params) {
-  const mode = (params.mode || "").toLowerCase();
-  const input = params.input || "";
+async function run(params) {
+  const mode = (params.mode || "hash").toLowerCase();
   if (mode === "hash") {
-    const saltRounds = parseInt(params.saltRounds, 10);
+    const input = params.input || "";
+    const saltRounds = parseInt(params.saltRounds, 10) || 10;
     if (isNaN(saltRounds))
       throw new Error("Invalid saltRounds");
     const hash = await import_bcryptjs.default.hash(input, saltRounds);
     return { hash };
   } else if (mode === "compare") {
+    const input = params.inputCompare || "";
     const hash = params.hash || "";
     const match = await import_bcryptjs.default.compare(input, hash);
     return { match };
@@ -1865,7 +1866,7 @@ async function bcryptTool(params) {
   }
 }
 export {
-  bcryptTool
+  run
 };
 /*! Bundled license information:
 
