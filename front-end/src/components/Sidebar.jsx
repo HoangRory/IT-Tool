@@ -15,7 +15,7 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="w-64 h-full bg-gray-900 text-white p-4 ">
+    <aside className="w-64 fixed top-0 left-0 h-screen bg-gray-900 text-white p-4 overflow-y-auto z-50">
       <Link to="/">
         <h2 className="text-xl font-bold cursor-pointer hover:text-gray-300">
           IT - TOOLS
