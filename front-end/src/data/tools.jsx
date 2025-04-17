@@ -101,7 +101,6 @@ const fetchToolsFromBackend = async () => {
       }
 
       // Map backend path to frontend path
-      const frontendPath = tool.path.replace("/api/tools", "");
       console.log(tool.path);
       // Check if tool exists in static list for icon and description
       const staticCategory = staticTools.find((cat) => cat.category === categoryName);
@@ -109,7 +108,7 @@ const fetchToolsFromBackend = async () => {
 
       category.items.push({
         name: tool.name,
-        path: frontendPath,
+        path: tool.path,
         icon: staticTool ? staticTool.icon : <Code size={18} />, // Default icon for new tools
         description: tool ? tool.description : "No description available",
       });
@@ -132,21 +131,4 @@ let tools = staticTools;
   tools = await fetchToolsFromBackend();
 })();
 
-function ToolFetcher() {
-  const [tools, setTools] = useState([]);
-
-  useEffect(() => {
-    fetch('http://localhost:5074/') // Backend root
-      .then(response => response.json())
-      .then(data => {
-        setTools(data); // Store the data in state (optional)
-        console.log('Fetched tools:', data); // Log the data
-      })
-      .catch(error => console.error('Error fetching tools:', error));
-  }, []); // Runs once on mount
-
-  // Return null to render nothing
-  return null;
-}
-
-export { tools, ToolFetcher };
+export { tools };

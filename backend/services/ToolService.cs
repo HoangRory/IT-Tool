@@ -17,6 +17,7 @@ namespace Backend.Models // Adjust namespace to match your project
         {
             return await _context.Tools
                 .AsNoTracking()
+                .Include(t => t.Category)
                 .ToListAsync();
         }
 
@@ -26,6 +27,14 @@ namespace Backend.Models // Adjust namespace to match your project
             return await _context.Tools
                 .AsNoTracking()
                 .FirstOrDefaultAsync(t => t.Id == id);
+        }
+
+        public async Task<Tool?> GetToolByPathAsync(string path)
+        {
+            return await _context.Tools
+                .AsNoTracking()
+                .Include(t => t.Category)
+                .FirstOrDefaultAsync(t => t.Path == path);
         }
     }
 }
