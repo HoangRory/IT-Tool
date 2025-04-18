@@ -16,6 +16,7 @@ import BasicAuthGenerator from "../pages/Web/BasicAuthGenerator";
 import JSONMinify from "../pages/Development/JSONminify";
 import RandomPortGenerator from "../pages/Development/RandomPortGenerator";
 import GitCheatSheet from "../pages/Development/GitCheatSheet";
+import MathEvaluator from "../pages/Math/MathEvaluator";
 import AddTool  from "../pages/AddTool";
 
 export default function AppRoutes() {
@@ -52,6 +53,11 @@ export default function AppRoutes() {
         <Route path="/json-minify" element={<JSONMinify />} /> {/* Add this route */}
         <Route path="/random-port-generator" element={<RandomPortGenerator />} /> {/* Add this route */}
         <Route path="/git-cheat-sheet" element={<GitCheatSheet />} /> {/* Add this route */}
+
+        {/* tool math */}
+        <Route path="/math-evaluator" element={<MathEvaluator />} /> {/* Add this route */}
+
+        {/* tool text */}
 
         {/* AddTool page */}
 
