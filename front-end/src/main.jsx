@@ -1,11 +1,15 @@
 import "./main.css"; // Import CSS chung
 import React from "react";
 import {createRoot} from "react-dom/client";
+import { AuthProvider } from './context/AuthContext';
 import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 
 createRoot(document.getElementById("root")).render(
-  <BrowserRouter>
-    <App />
-  </BrowserRouter>
+      <BrowserRouter>
+        <AuthProvider>
+          <App/>
+        </AuthProvider>
+      </BrowserRouter>
+      
 );
