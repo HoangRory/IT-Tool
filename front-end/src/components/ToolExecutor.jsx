@@ -12,8 +12,8 @@ import DynamicField from "./DynamicField"; // Import component render input theo
  * @param {function} customRenderer - (Tùy chọn) Nếu truyền vào hàm custom renderer, sẽ override toàn bộ UI mặc định của tool executor.
  */
 
-export default function ToolExecutor({ toolName, description, schemaInput = [], schemaOutput = [], customRenderer }) {
-  const [formData, setFormData] = useState({});
+export default function ToolExecutor({ toolName, description, initialInput, schemaInput = [], schemaOutput = [], customRenderer }) {
+  const [formData, setFormData] = useState(initialInput || {});
   const [output, setOutput] = useState(null);
   const runTool = useDynamicToolLoader(toolName, "run");
 

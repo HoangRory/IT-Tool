@@ -17,6 +17,7 @@ import JSONMinify from "../pages/Development/JSONminify";
 import RandomPortGenerator from "../pages/Development/RandomPortGenerator";
 import GitCheatSheet from "../pages/Development/GitCheatSheet";
 import MathEvaluator from "../pages/Math/MathEvaluator";
+import ETACalculator from "../pages/Math/ETACaculator";
 import AddTool  from "../pages/AddTool";
 
 export default function AppRoutes() {
@@ -56,7 +57,7 @@ export default function AppRoutes() {
 
         {/* tool math */}
         <Route path="/math-evaluator" element={<MathEvaluator />} /> {/* Add this route */}
-
+        <Route path="/eta-calculator" element={<ETACalculator />} /> {/* Add this route */}
         {/* tool text */}
 
         {/* AddTool page */}
