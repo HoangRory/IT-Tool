@@ -4,7 +4,9 @@ import {toast, ToastContainer} from "react-toastify";
 export default function TokenGenerator() {
   return (
     <ToolExecutor
-      toolName="token-generator"
+      toolName="Token Generator"
+      toolPath="token-generator"
+      description="Generate random string with the chars you want, uppercase or lowercase letters, numbers and/or symbols."
       schemaInput={[
         { autoRun: true }
       ]}
@@ -22,12 +24,6 @@ export default function TokenGenerator() {
           setFormData({ ...formData, token: null });
         };
         return (
-          <div className="flex justify-center bg-gray-100 min-h-screen pt-8">
-            <div className="w-full max-w-md p-6">
-              <h2 className="text-3xl font-bold text-center text-gray-800">Token Generator</h2>
-              <p className="text-sm text-center text-gray-600 mt-2">
-                Generate random string with the chars you want, uppercase or lowercase letters, numbers and/or symbols.
-              </p>
               <div
                 className="mt-6 p-6 border border-gray-300 rounded-lg shadow-md bg-white"
               >
@@ -123,8 +119,6 @@ export default function TokenGenerator() {
                 )}
                 <ToastContainer position="bottom-center" autoClose={1000} />
               </div>
-            </div>
-          </div>
         );
       }}
     />

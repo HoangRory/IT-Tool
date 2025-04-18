@@ -3,31 +3,27 @@ import AutoResizingTextarea from "../../components/ui/AutoResizeTextArea";
 export default function MathEvaluator() {
     return (
         <ToolExecutor
-            toolName="math-evaluator"
+            toolPath="math-evaluator"
+            toolDescription="A calculator for evaluating mathematical expressions. You can use functions like sqrt, cos, sin, abs, etc."
+            toolName="Math Evaluator"
             schemaInput={[
                 { autoRun: true },
             ]}
             customRenderer={({ formData, setFormData, output }) => {
                 return (
-                    <div className="max-w-3xl mx-auto p-6 space-y-5">
-                        <h1 className="text-3xl font-bold mb-4 text-gray-800">Math Evaluator</h1>
-                        <p className="text-sm text-gray-600 mb-4">
-                            A calculator for evaluating mathematical expressions. You can use functions like sqrt, cos, sin, abs, etc.
-                        </p>
-                        <div className="bg-white shadow-md rounded-xl p-6 space-y-4">
-                            <AutoResizingTextarea
-                                value={formData.expression || ""}
-                                onChange={(e) => setFormData({ ...formData, expression: e.target.value })}
-                                placeholder="Your math expression (ex 2*sqrt(6))..."
-                            />
-                            {output?.result && !output?.error && (
-                                <div className="mt-4">
-                                    <h3 className="text-lg font-semibold">Result:</h3>
-                                    <p>{output.result.toString()}</p>
-                                </div>
-                            )}
+                    <div className="bg-white shadow-md rounded-xl p-6 space-y-4">
+                        <AutoResizingTextarea
+                            value={formData.expression || ""}
+                            onChange={(e) => setFormData({ ...formData, expression: e.target.value })}
+                            placeholder="Your math expression (ex 2*sqrt(6))..."
+                        />
+                        {output?.result && !output?.error && (
+                            <div className="mt-4">
+                                <h3 className="text-lg font-semibold">Result:</h3>
+                                <p>{output.result.toString()}</p>
+                            </div>
+                        )}
 
-                        </div>
                     </div>
                 );
             }}

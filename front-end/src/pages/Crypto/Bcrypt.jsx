@@ -13,7 +13,9 @@ export default function BcryptTool() {
   );
   return (
     <ToolExecutor
-      toolName="bcrypt"
+      toolName="Bcrypt"
+      toolPath="bcrypt"
+      description="Hash and compare text string using bcrypt. Bcrypt is a password-hashing function based on the Blowfish cipher."
       schemaInput={[
         {autoRun: true },
       ]}
@@ -27,11 +29,6 @@ export default function BcryptTool() {
           }
         }, [output]);
         return (
-          <div className="max-w-3xl mx-auto p-6 space-y-5">
-            <h1 className="text-3xl font-bold mb-4 text-gray-800">Bcrypt</h1>
-            <p className="text-sm text-gray-600 mb-4">
-              Hash and compare text string using bcrypt. Bcrypt is a password-hashing function based on the Blowfish cipher.
-            </p>
             <div>
               <div className="bg-white shadow-md rounded-xl p-6 space-y-4">
                 <h2 className="text-2xl font-semibold mb-2">Hash</h2>
@@ -73,9 +70,7 @@ export default function BcryptTool() {
                   <ToastContainer position="bottom-center" autoClose={1000} />
                 </div>
               </div>
-            </div>
-
-            <div>
+            
               <div className="bg-white shadow-md rounded-xl p-6 space-y-4">
                 <h2 className="text-2xl font-semibold mb-2">Compare</h2>
                 <Input
@@ -98,7 +93,6 @@ export default function BcryptTool() {
                 )}
               </div>
             </div>
-          </div>
         )
       }}
     />

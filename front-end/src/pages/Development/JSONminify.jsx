@@ -1,56 +1,46 @@
-import React, { useState, useEffect, use } from 'react';
-import { useDynamicToolLoader } from '../../hooks/useDynamicToolLoader'; // Hook to load the JWT parser function dynamically
+import ToolExecutor from '../../components/ToolExecutor';
 
 export default function jsonMinify() {
-    const [json, setJson] = useState(''); // State to hold the input JSON string
-    const [jsonMinifyResult, setJsonMinifyResult] = useState(''); // State to hold the minified JSON result
-    const jsonMinify = useDynamicToolLoader('json-minify', 'minifyJson');
-
-    useEffect(() => {
-        if (jsonMinify && json) {
-            try {
-                const result = jsonMinify(json); // Call the JWT parser function with the input JSON
-                setJsonMinifyResult(result); // Update the minified JSON result state
-            } catch (error) {
-                setJsonMinifyResult('Error: ' + error.message); // Handle any errors that occur during parsing
-            }
-        } else {
-            setJsonMinifyResult(''); // Reset the minified JSON result if input is empty
-        }
-    }
-    , [json, jsonMinify]); // Re-run effect when json or jsonMinify changes
-
-    const handleCopy = () => {
-        navigator.clipboard.writeText(jsonMinifyResult); // Copy the minified JSON to clipboard
-    }
     return (
-        <div className="max-w-3xl mx-auto p-6 space-y-5">
-            <h1 className="text-3xl font-bold mb-4 text-gray-800">JSON minify</h1>
-            <p className="text-sm text-gray-600 mb-4">
-                Minify and compress your JSON by removing unnecessary whitespace.
-            </p>
-            <div className="bg-white shadow-md rounded-xl p-6 space-y-4">
-                <span className="text-sm text-gray-700 whitespace-nowrap">Your raw JSON</span>
-                <textarea
-                    className={"w-full border border-gray-300 rounded-lg p-3 mb-6 resize-none h-80 focus:outline-none focus:ring-2 focus:ring-green-400"}
-                    placeholder="Paste your JWT here..."
-                    value={json}    
-                    onChange={(e) => setJson(e.target.value)}
-                />
-            </div>
+        <ToolExecutor
+            toolPath="json-minify"
+            toolName="JSON Minify"
+            description="Minify and compress your JSON by removing unnecessary whitespace."
+            schemaInput={[{ autoRun: true }]}
+            customRenderer={({ formData, setFormData, output }) => {
+                return (
+                    <div>
+                        <div className="bg-white shadow-md rounded-xl p-6 space-y-4">
+                            <span className="text-sm text-gray-700 whitespace-nowrap">Your raw JSON</span>
+                            <textarea
+                                className={"w-full border border-gray-300 rounded-lg p-3 mb-6 resize-none h-80 focus:outline-none focus:ring-2 focus:ring-green-400"}
+                                placeholder="Paste your JWT here..."
+                                value={formData.json || ""}
+                                onChange={(e) => setFormData({ ...formData, json: e.target.value })}
+                            />
+                        </div>
 
-            <div className="bg-white shadow-md rounded-xl p-6 space-y-4">
-                <span className="text-sm text-gray-700 whitespace-nowrap">Your raw JSON</span>
-                <div className="relative">
-                    <pre className="text-sm text-gray-700 overflow-auto">{jsonMinifyResult}</pre>
-                    <button
-                        type="button"
-                        onClick={handleCopy}
-                        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                        title="Copy to clipboard">
-                    </button>
-                </div>
-            </div>
-        </div>
+                        <div className="bg-white shadow-md rounded-xl p-6 space-y-4">
+                            <span className="text-sm text-gray-700 whitespace-nowrap">Your raw JSON</span>
+                            <div className="relative">
+                                <pre className="text-sm text-gray-700 overflow-auto">{output?.jsonMinify}</pre>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        navigator.clipboard.writeText(output?.jsonMinify || "");
+                                    }}
+                                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                    title="Copy to clipboard">
+                                    <svg viewBox="0 0 24 24" width="1.2em" height="1.2em">
+                                        <path fill="currentColor" d="M19 21H8V7h11m0-2H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2m-3-4H4a2 2 0 0 0-2 2v14h2V3h12V1Z"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }}
+        />
     );
+
 }
