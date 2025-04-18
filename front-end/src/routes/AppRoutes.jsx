@@ -26,11 +26,7 @@ import PercentageCalculator from "../pages/Math/PercentageCalculator";
 import TextStatistics from "../pages/Text/TextStatistics";
 import AddTool  from "../pages/AddTool";
 import NumeronymGenerator from "../pages/Text/NumeronymGenerator";
-<<<<<<< HEAD
 import AdminDashboard from "../pages/Admin/AdminDashboard";
-=======
-import StringObfuscator from "../pages/Text/StringObfuscator";
->>>>>>> 9de132b5b8b385013608ed22c56e58b69b59cd37
 
 export default function AppRoutes() {
   return (
