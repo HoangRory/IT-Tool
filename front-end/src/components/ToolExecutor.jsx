@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useDynamicToolLoader } from "../hooks/useDynamicToolLoader";
 import DynamicField from "./DynamicField"; // Import component render input theo type
-import { tools } from "../data/tools";
+import { ToolsContext } from "../context/ToolsContext";
 
 /**
  * Component `ToolExecutor`
@@ -18,6 +18,7 @@ import { tools } from "../data/tools";
 export default function ToolExecutor({ toolPath, initialInput, schemaInput = [], schemaOutput = [], customRenderer }) {
   const [formData, setFormData] = useState(initialInput || {});
   const [output, setOutput] = useState(null);
+  const { tools, favoriteToolIds, isLoading } = useContext(ToolsContext);
   const runTool = useDynamicToolLoader(toolPath, "run");
   const allItems = tools.flatMap(cat => cat.items);
   const matchedTool = allItems.find(tool => tool.path === toolPath);

@@ -1,20 +1,31 @@
 using Backend.Models;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
-using System.IO;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
 builder.Services.AddControllers();
 
+// Configure cookie authentication
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+        options.SlidingExpiration = true;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.Cookie.HttpOnly = true;
+    });
+
 // Register DbContext
 builder.Services.AddDbContext<DefaultdbContext>(options =>
     options.UseMySql(builder.Configuration.GetConnectionString("Default"),
         ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("Default"))));
 
-// Register ToolService
+// Register Services
 builder.Services.AddScoped<ToolService>();
+builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<AccountService>();
 
 // Configure CORS for React frontend
 builder.Services.AddCors(options =>
@@ -23,14 +34,27 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins("http://localhost:3000")
               .AllowAnyMethod()
-              .AllowAnyHeader();
+              .AllowAnyHeader()
+              .AllowCredentials();
     });
 });
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+}
+else
+{
+    app.UseExceptionHandler("/error");
+    app.UseHsts();
+}
+
+app.UseHttpsRedirection();
 app.UseCors("AllowReact");
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 

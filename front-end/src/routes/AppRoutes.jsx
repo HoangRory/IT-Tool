@@ -1,6 +1,6 @@
-import { Routes, Route } from "react-router-dom";
-import MainLayout from "../layouts/MainLayout";
-import Home from "../pages/MainContent";
+import { Routes, Route } from 'react-router-dom';
+import MainLayout from '../layouts/MainLayout';
+import Home from '../pages/MainContent';
 import HashText from "../pages/Crypto/HashText";
 import WifiQR from "../pages/WifiQR"; 
 import TokenGenerator from "../pages/Crypto/TokenGenerator";
@@ -18,6 +18,9 @@ import RandomPortGenerator from "../pages/Development/RandomPortGenerator";
 import GitCheatSheet from "../pages/Development/GitCheatSheet";
 import MathEvaluator from "../pages/Math/MathEvaluator";
 import ETACalculator from "../pages/Math/ETACaculator";
+import Login from '../components/Login';
+import Signup from '../components/Signup';
+import ProtectedRoute from '../components/ProtectedRoute';
 import PercentageCalculator from "../pages/Math/PercentageCalculator";
 import TextStatistics from "../pages/Text/TextStatistics";
 import AddTool  from "../pages/AddTool";
@@ -27,8 +30,13 @@ import StringObfuscator from "../pages/Text/StringObfuscator";
 export default function AppRoutes() {
   return (
     <Routes>
-      {/* Use MainLayout for all routes */}
-      <Route element={<MainLayout />}>
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+      <Route
+        element={
+            <MainLayout />
+        }
+      >
         <Route path="/" element={<Home />} />
 
         {/* tool crypto */}
