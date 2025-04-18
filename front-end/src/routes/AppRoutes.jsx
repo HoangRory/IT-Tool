@@ -19,6 +19,7 @@ import GitCheatSheet from "../pages/Development/GitCheatSheet";
 import MathEvaluator from "../pages/Math/MathEvaluator";
 import ETACalculator from "../pages/Math/ETACaculator";
 import PercentageCalculator from "../pages/Math/PercentageCalculator";
+import TextStatistics from "../pages/Text/TextStatistics";
 import AddTool  from "../pages/AddTool";
 
 export default function AppRoutes() {
@@ -60,7 +61,9 @@ export default function AppRoutes() {
         <Route path="/math-evaluator" element={<MathEvaluator />} /> {/* Add this route */}
         <Route path="/eta-calculator" element={<ETACalculator />} /> {/* Add this route */}
         <Route path="/percentage-calculator" element={<PercentageCalculator />} /> {/* Add this route */}
+
         {/* tool text */}
+        <Route path="/text-statistics" element={<TextStatistics />} /> {/* Add this route */}
 
         {/* AddTool page */}
 
