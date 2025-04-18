@@ -7,7 +7,7 @@ const customRenderer = ({ formData, setFormData, output }) => {
             <div className="relative">
                 <input
                     type="text"
-                    className="w-full border rounded-md p-2 focus:ring-2 focus:ring-blue-400 outline-none"
+                    className="w-full border rounded-md p-2 focus:ring-2 focus:ring-green-400 outline-none"
                     value={formData.text || ""}
                     onChange={(e) =>
                         setFormData({ ...formData, text: e.target.value })
