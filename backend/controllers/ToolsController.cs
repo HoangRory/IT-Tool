@@ -35,7 +35,7 @@ namespace Backend.Controllers
                 Console.WriteLine("Fetched Tools:");
                 foreach (var tool in result)
                 {
-                    Console.WriteLine($"Name: {tool.Name}, Path: {tool.Path}, Category: {tool.Category}");
+                    Console.WriteLine($"Name: {tool.Name}, Path: {tool.Path}, Category: {tool.Category}, Description: {tool.Description}");
                 }
 
                 return Ok(result);

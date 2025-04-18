@@ -4,9 +4,7 @@ import {toast, ToastContainer} from "react-toastify";
 export default function TokenGenerator() {
   return (
     <ToolExecutor
-      toolName="Token Generator"
       toolPath="token-generator"
-      description="Generate random string with the chars you want, uppercase or lowercase letters, numbers and/or symbols."
       schemaInput={[
         { autoRun: true }
       ]}

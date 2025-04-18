@@ -4,8 +4,6 @@ export default function jsonMinify() {
     return (
         <ToolExecutor
             toolPath="json-minify"
-            toolName="JSON Minify"
-            description="Minify and compress your JSON by removing unnecessary whitespace."
             schemaInput={[{ autoRun: true }]}
             customRenderer={({ formData, setFormData, output }) => {
                 return (

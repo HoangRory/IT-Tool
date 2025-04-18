@@ -13,9 +13,7 @@ export default function BcryptTool() {
   );
   return (
     <ToolExecutor
-      toolName="Bcrypt"
       toolPath="bcrypt"
-      description="Hash and compare text string using bcrypt. Bcrypt is a password-hashing function based on the Blowfish cipher."
       schemaInput={[
         {autoRun: true },
       ]}

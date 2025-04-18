@@ -5,8 +5,6 @@ export default function BasicAuthGenerator() {
   return (
     <ToolExecutor
       toolPath="basic-auth-generator"
-      description="Generate a base64 basic auth header from a username and password."
-      toolName="Basic Auth Generator"
       schemaInput={[
         { type: "text", autoRun: true },
         { type: "password", autoRun: true }

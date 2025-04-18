@@ -11,15 +11,6 @@ export default function ETACalculator() {
     return (
         <ToolExecutor
             toolPath="eta-calculator"
-            description={
-                <>
-                    An ETA (Estimated Time of Arrival) calculator to determine the approximate end time of a task, for example, the end time and duration of a file download.
-                    <br />
-                    <br />
-                    With a concrete example, if you wash 5 plates in 3 minutes and you have 500 plates to wash, it will take you 5 hours to wash them all.
-                </>
-            }
-            toolName="ETA Calculator"
             schemaInput={[{ autoRun: true }]}
             initialInput={{
                 amountToConsume: 186,

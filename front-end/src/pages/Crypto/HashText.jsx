@@ -4,8 +4,6 @@ import { useState } from "react";
 export default function HashText() {
   return (
     <ToolExecutor
-      toolName="Hash Text"
-      description="Hash a text string using: MD5, SHA1, SHA256, SHA224, SHA512, SHA384, SHA3, or RIPEMD160."
       toolPath="hash-text"
       schemaInput={[
         { name: "input", label: "Text to hash", type: "textarea", placeholder: "Your string to hash...", autoRun: true },

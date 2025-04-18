@@ -4,8 +4,6 @@ export default function MathEvaluator() {
     return (
         <ToolExecutor
             toolPath="math-evaluator"
-            toolDescription="A calculator for evaluating mathematical expressions. You can use functions like sqrt, cos, sin, abs, etc."
-            toolName="Math Evaluator"
             schemaInput={[
                 { autoRun: true },
             ]}

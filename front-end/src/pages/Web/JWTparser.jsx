@@ -16,9 +16,7 @@ export default function JwtParser() {
 
     return (
         <ToolExecutor
-            toolName="JWT Parser"
             toolPath="jwt-parser"
-            description="Decode and parse JWT (JSON Web Token) to view its header and payload."
             schemaInput={[
                 {
                     type: "textarea",

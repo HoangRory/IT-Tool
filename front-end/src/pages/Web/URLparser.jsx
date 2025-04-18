@@ -11,8 +11,6 @@ export default function UrlParser() {
     return (
         <ToolExecutor
             toolPath="url-parser"
-            description="Parse a URL into its separate constituent parts..."
-            toolName="URL Parser"
             schemaInput={[
                 {
                     type: "text",

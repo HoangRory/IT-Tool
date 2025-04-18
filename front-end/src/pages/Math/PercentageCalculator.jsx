@@ -4,9 +4,7 @@ import NumberInputWithButtons from "../../components/ui/NumberInputWithButtons";
 export default function PercentageCalculator() {
     return (
         <ToolExecutor
-            toolName="Percentage Calculator"
             toolPath="percentage-calculator"
-            description="Easily calculate percentages from a value to another value, or from a percentage to a value."
             schemaInput={[{ autoRun: true }]}
             customRenderer={({ formData, setFormData, output }) => {
                 return (

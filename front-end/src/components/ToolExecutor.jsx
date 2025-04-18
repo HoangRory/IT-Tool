@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDynamicToolLoader } from "../hooks/useDynamicToolLoader";
 import DynamicField from "./DynamicField"; // Import component render input theo type
+import { tools } from "../data/tools";
 
 /**
  * Component `ToolExecutor`
@@ -14,10 +15,15 @@ import DynamicField from "./DynamicField"; // Import component render input theo
  * @param {function} customRenderer - (Tùy chọn) Nếu truyền vào hàm custom renderer, sẽ override toàn bộ UI mặc định của tool executor.
  */
 
-export default function ToolExecutor({ toolName, toolPath, description, initialInput, schemaInput = [], schemaOutput = [], customRenderer }) {
+export default function ToolExecutor({ toolPath, initialInput, schemaInput = [], schemaOutput = [], customRenderer }) {
   const [formData, setFormData] = useState(initialInput || {});
   const [output, setOutput] = useState(null);
   const runTool = useDynamicToolLoader(toolPath, "run");
+  const allItems = tools.flatMap(cat => cat.items);
+  const matchedTool = allItems.find(tool => tool.path === toolPath);
+
+  const toolName = matchedTool?.name || "Tool Executor";
+  const description = matchedTool?.description || "No description provided.";
 
   const handleChange = (fieldName, value) => {
     setFormData((prev) => ({ ...prev, [fieldName]: value }));
@@ -46,13 +52,13 @@ export default function ToolExecutor({ toolName, toolPath, description, initialI
 
   // Nếu người dùng truyền custom renderer → dùng giao diện của họ
   if (customRenderer) {
-    return(
+    return (
       <div className="max-w-3xl mx-auto p-6 space-y-5">
-      <h1 className="text-3xl font-bold mb-4 text-gray-800" >{toolName || ""}</h1>
-      <p className="text-sm text-gray-600 mb-4">
-        {description || "No description provided."}
-      </p>
-         { customRenderer({ formData, setFormData, output, runTool })}
+        <h1 className="text-3xl font-bold mb-4 text-gray-800" >{toolName || ""}</h1>
+        <p className="text-sm text-gray-600 mb-4">
+          {description || "No description provided."}
+        </p>
+        {customRenderer({ formData, setFormData, output, runTool })}
       </div>
     )
   }
