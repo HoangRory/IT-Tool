@@ -21,7 +21,7 @@ import ETACalculator from "../pages/Math/ETACaculator";
 import PercentageCalculator from "../pages/Math/PercentageCalculator";
 import TextStatistics from "../pages/Text/TextStatistics";
 import AddTool  from "../pages/AddTool";
-
+import NumeronymGenerator from "../pages/Text/NumeronymGenerator";
 export default function AppRoutes() {
   return (
     <Routes>
@@ -64,6 +64,8 @@ export default function AppRoutes() {
 
         {/* tool text */}
         <Route path="/text-statistics" element={<TextStatistics />} /> {/* Add this route */}
+        <Route path="/numeronym-generator" element={<NumeronymGenerator />} /> {/* Add this route */}
+
 
         {/* AddTool page */}
 
