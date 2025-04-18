@@ -2,15 +2,16 @@ import { Routes, Route } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import Home from '../pages/MainContent';
 import HashText from "../pages/Crypto/HashText";
-import WifiQR from "../pages/WifiQR"; 
+import WifiQR from "../pages/Images And Videos/WifiQR";
+import CameraRecorder from "../pages/Images And Videos/CameraRecorder";
 import TokenGenerator from "../pages/Crypto/TokenGenerator";
 import Bcrypt from "../pages/Crypto/Bcrypt"; 
-import BaseConverter from "../pages/BaseConverter";
-import RomanNumeralConverter from "../pages/RomanNumeralConverter";
-import ColorConverter from "../pages/ColorConverter";
-import QRCodeGenerator from "../pages/QRCodeGenerator";
+import BaseConverter from "../pages/Converter/BaseConverter";
+import RomanNumeralConverter from "../pages/Converter/RomanNumeralConverter";
+import ColorConverter from "../pages/Converter/ColorConverter";
+import QRCodeGenerator from "../pages/Images And Videos/QRCodeGenerator";
 import URLParser from "../pages/Web/URLparser";
-import IPv4SubnetCalculator from "../pages/IPv4SubnetCal";
+import IPv4SubnetCalculator from "../pages/Network/IPv4SubnetCal";
 import JWTParser from "../pages/Web/JWTparser";
 import BasicAuthGenerator from "../pages/Web/BasicAuthGenerator";
 import JSONMinify from "../pages/Development/JSONminify";
@@ -27,6 +28,10 @@ import TextStatistics from "../pages/Text/TextStatistics";
 import AddTool  from "../pages/AddTool";
 import NumeronymGenerator from "../pages/Text/NumeronymGenerator";
 import StringObfuscator from "../pages/Text/StringObfuscator";
+import MacAddressLookup from "../pages/Network/MacAddressLookup";
+import IPv4AddressConverter from '../pages/Network/IPv4AddressConverter';
+import TemperatureConverter from '../pages/Measurement/TemperatureConverter';
+import Chronometer from '../pages/Measurement/Chronometer';
 import AdminDashboard from "../pages/Admin/AdminDashboard";
 
 export default function AppRoutes() {
@@ -54,10 +59,13 @@ export default function AppRoutes() {
 
         {/* tool network */}
         <Route path="ipv4-subnet-calculator" element={<IPv4SubnetCalculator />} /> {/* Add this route */}
+        <Route path="mac-address-lookup" element={<MacAddressLookup />} /> {/* Add this route */}
+        <Route path="ipv4-address-converter" element={<IPv4AddressConverter />} /> {/* Add this route */}
 
         {/* tool image & video */}
         <Route path="/wifi-qr" element={<WifiQR />} /> {/* Add this route */}
         <Route path="qr-code-generator" element={<QRCodeGenerator />} /> {/* Add this route */}
+        <Route path="camera-recorder" element={<CameraRecorder />} /> {/* Add this route */}
 
         {/* tool web */}
         <Route path="/basic-auth-generator" element={<BasicAuthGenerator />} /> {/* Add this route */}
@@ -78,6 +86,10 @@ export default function AppRoutes() {
         <Route path="/text-statistics" element={<TextStatistics />} /> {/* Add this route */}
         <Route path="/numeronym-generator" element={<NumeronymGenerator />} /> {/* Add this route */}
         <Route path="/string-obfuscator" element={<StringObfuscator />} /> {/* Add this route */}
+
+        {/* tool measurement */}
+        <Route path="/temperature-converter" element={<TemperatureConverter />} /> {/* Add this route */}
+        <Route path="/chronometer" element={<Chronometer />} /> {/* Add this route */}
 
         {/* Protect all /admin/* routes */}
         <Route
