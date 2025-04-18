@@ -14,12 +14,14 @@ import IPv4SubnetCalculator from '../pages/IPv4SubnetCal';
 import BasicAuthGenerator from '../pages/Web/BasicAuthGenerator';
 import AddTool from '../pages/AddTool';
 import Login from '../components/Login';
+import Signup from '../components/Signup';
 import ProtectedRoute from '../components/ProtectedRoute';
 
 export default function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
       <Route
         element={
           <ProtectedRoute>

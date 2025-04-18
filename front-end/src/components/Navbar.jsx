@@ -1,5 +1,6 @@
 import SearchBar from "../components/ui/SearchBar";
 import ThemeToggle from "../components/ui/ThemeToggle";
+import LogOut from "../components/ui/LogOut";
 import { Link } from "react-router-dom"; // Import Link from react-router-dom
 
 export default function Navbar() {
@@ -14,6 +15,7 @@ export default function Navbar() {
           </button>
         </Link>
         <ThemeToggle />
+        <LogOut />
       </div>
     </nav>
   );

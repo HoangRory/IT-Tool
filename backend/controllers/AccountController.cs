@@ -62,9 +62,32 @@ namespace Backend.Controllers
             var username = User.FindFirst(ClaimTypes.Name)?.Value;
             return Ok(new { Username = username });
         }
+
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegisterModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { Message = "Invalid input" });
+            }
+
+            var success = await _authService.RegisterUserAsync(model.Username, model.Password);
+            if (!success)
+            {
+                return BadRequest(new { Message = "Username already taken" });
+            }
+
+            return Ok(new { Message = "Registration successful" });
+        }
     }
 
     public class LoginModel
+    {
+        public string Username { get; set; }
+        public string Password { get; set; }
+    }
+
+    public class RegisterModel
     {
         public string Username { get; set; }
         public string Password { get; set; }
