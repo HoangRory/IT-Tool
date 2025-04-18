@@ -34,7 +34,7 @@ export default function Sidebar() {
 
   if (isLoading) {
     return (
-      <aside className="w-64 fixed top-0 left-0 h-screen bg-gray-900 text-white p-4 overflow-y-auto z-50">
+      <aside className="w-64 fixed top-0 left-0 h-screen bg-green-700 text-white p-4 overflow-y-auto z-50">
         <Link to="/">
           <h2 className="text-xl font-bold cursor-pointer hover:text-gray-300">
             IT - TOOLS
@@ -46,7 +46,7 @@ export default function Sidebar() {
   }
 
   return (
-    <aside className="w-64 fixed top-0 left-0 h-screen bg-gray-900 text-white p-4 overflow-y-auto z-50">
+    <aside className="w-64 fixed top-0 left-0 h-screen bg-green-700 text-white p-4 overflow-y-auto z-50">
       <Link to="/">
         <h2 className="text-xl font-bold cursor-pointer hover:text-gray-300">
           IT - TOOLS
@@ -58,7 +58,7 @@ export default function Sidebar() {
             <li key={category}>
               {/* Category header */}
               <button
-                className="flex items-center justify-between w-full p-2 hover:bg-gray-700 rounded"
+                className="flex items-center justify-between w-full p-2 hover:hover:bg-green-600 rounded"
                 onClick={() => toggleSection(category)}
               >
                 <div className="flex items-center gap-2">
@@ -76,7 +76,7 @@ export default function Sidebar() {
                       <Link
                         to={path}
                         className={`flex items-center gap-2 block p-2 rounded ${
-                          location.pathname === path ? "bg-blue-500" : "hover:bg-gray-700"
+                          location.pathname === path ? "hover:bg-blue-500" : "hover:bg-green-600"
                         }`}
                       >
                         {icon}

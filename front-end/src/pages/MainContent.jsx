@@ -14,14 +14,14 @@ export default function Home() {
 
   if (isLoading) {
     return (
-      <div className="flex-1 bg-gray-100 p-4 overflow-auto">
-        <p className="text-gray-600">Loading tools...</p>
+      <div className="flex-1 bg-green-50 p-4 overflow-auto">
+        <p className="text-gray-800">Loading tools...</p>
       </div>
     );
   }
 
   return (
-    <div className="flex-1 bg-gray-100 p-4 overflow-auto">
+    <div className="flex-1 p-4 overflow-auto">
       {/* Your Favorite Tools Section */}
       {user && favoriteTools.length > 0 && (
         <>

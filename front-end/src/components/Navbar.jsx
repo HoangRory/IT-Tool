@@ -36,7 +36,7 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="flex items-center justify-between bg-gray-800 text-white p-4">
+      <nav className="flex items-center justify-between text-white p-4">
         <SearchBar onClick={() => setOpenSearch(true)} />
         <div className="flex items-center gap-4">
           <Link to="/add-tool">

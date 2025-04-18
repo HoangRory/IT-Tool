@@ -1,7 +1,7 @@
 export const Button = ({ children, variant = "primary", ...props }) => {
   const variants = {
-    primary: "bg-blue-500 text-white hover:bg-blue-700",
-    secondary: "bg-gray-500 text-white hover:bg-gray-700",
+    primary: "bg-green-500 text-white hover:bg-green-600",
+    secondary: "bg-gray-500 text-white hover:bg-gray-600",
     outline: "border border-gray-500 text-gray-500 hover:bg-gray-100",
   };
 

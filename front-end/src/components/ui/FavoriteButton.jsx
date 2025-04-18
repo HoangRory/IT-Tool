@@ -66,21 +66,21 @@ const FavoriteButton = ({ toolId, toolPath, isFavorite: initialIsFavorite, toggl
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         className={`p-2 rounded-full ${
-          isFavorite ? 'text-red-500' : 'text-gray-400'
-        } hover:bg-gray-700 transition-colors`}
+          isFavorite ? 'text-red-500' : 'text-green-400'
+          } hover:bg-green-700 transition-colors`}
         aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
       >
         <Heart className={isFavorite ? 'fill-red-500' : ''} />
       </button>
       {showPopup && (
-        <div className="absolute top-full mt-2 bg-gray-800 text-white p-2 rounded shadow-lg text-sm z-10">
+        <div className="absolute top-full w-28 mt-2 bg-white text-gray-600 p-2 rounded-lg shadow-lg text-sm z-10">
           {popupMessage}
           {!user && (
             <>
               {' '}
               <button
                 onClick={() => navigate('/login')}
-                className="text-blue-400 hover:underline"
+                className="text-green-400 hover:text-green-600 font-semibold"
               >
                 log in
               </button>

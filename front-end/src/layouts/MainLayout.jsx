@@ -8,12 +8,12 @@ export default function MainLayout() {
       {/* Sidebar cố định */}
       <Sidebar />
 
-      <div className="flex flex-col flex-1 ml-64">
+      <div className="flex flex-col flex-1 ml-64 bg-green-50">
         {/* Navbar cố định */}
         <Navbar />
 
         {/* MainContent sẽ thay đổi khi chuyển trang */}
-        <main className="flex-1 p-4">
+        <main className="flex-1 p-4 ">
           <Outlet />
         </main>
       </div>
