@@ -3,7 +3,7 @@ import React from "react";
 const NumberInputWithButtons = ({
   label,
   value,
-  min = 1,
+  min = Number.NEGATIVE_INFINITY,
   onChange,
   step = 1,
 }) => {

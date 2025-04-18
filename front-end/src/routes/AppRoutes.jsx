@@ -18,10 +18,13 @@ import RandomPortGenerator from "../pages/Development/RandomPortGenerator";
 import GitCheatSheet from "../pages/Development/GitCheatSheet";
 import MathEvaluator from "../pages/Math/MathEvaluator";
 import ETACalculator from "../pages/Math/ETACaculator";
-import AddTool from '../pages/AddTool';
 import Login from '../components/Login';
 import Signup from '../components/Signup';
 import ProtectedRoute from '../components/ProtectedRoute';
+import PercentageCalculator from "../pages/Math/PercentageCalculator";
+import TextStatistics from "../pages/Text/TextStatistics";
+import AddTool  from "../pages/AddTool";
+import NumeronymGenerator from "../pages/Text/NumeronymGenerator";
 
 export default function AppRoutes() {
   return (
@@ -66,7 +69,16 @@ export default function AppRoutes() {
         {/* tool math */}
         <Route path="/math-evaluator" element={<MathEvaluator />} /> {/* Add this route */}
         <Route path="/eta-calculator" element={<ETACalculator />} /> {/* Add this route */}
+        <Route path="/percentage-calculator" element={<PercentageCalculator />} /> {/* Add this route */}
+
         {/* tool text */}
+        <Route path="/text-statistics" element={<TextStatistics />} /> {/* Add this route */}
+        <Route path="/numeronym-generator" element={<NumeronymGenerator />} /> {/* Add this route */}
+
+
+        {/* AddTool page */}
+
+        <Route path="/add-tool" element={<AddTool />} />
       </Route>
     </Routes>
   );

@@ -12,6 +12,10 @@ export function useDynamicToolLoader(toolName, exportName) {
     useEffect(() => {
         (async () => {
             try {
+                if(toolName === null || exportName === null) {
+                    console.error(`Tool name or export name is null`);
+                    return;
+                }
                 const res = await fetch(`http://localhost:5074/api/tools/${toolName}`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },

@@ -22,7 +22,8 @@ function base64Encode(str) {
  * @returns {string} - Header: "Authorization: Basic xxx"
  */
 function run(input) {
-  const { username, password } = input;
+  const username = input.username || "";
+  const password = input.password || "";
   return {result : `Authorization: Basic ${base64Encode(`${username}:${password}`)}`};
 }
 
