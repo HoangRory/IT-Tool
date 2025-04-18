@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 
-const Logout = () => {
+const LogOut = () => {
   const { logout } = useContext(AuthContext);
 
   const handleLogout = async () => {
@@ -19,4 +19,4 @@ const Logout = () => {
   );
 };
 
-export default Logout;
+export default LogOut;

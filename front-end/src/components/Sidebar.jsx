@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { ChevronDown, ChevronRight } from "lucide-react";
-import { tools } from "../data/tools"; // Import từ file tools.js
+import { ChevronDown, ChevronRight, Heart } from "lucide-react";
+import { ToolsContext } from "../context/ToolsContext";
+import { AuthContext } from "../context/AuthContext";
 
 export default function Sidebar() {
+  const { tools, favoriteToolIds, isLoading } = useContext(ToolsContext);
+  const { user } = useContext(AuthContext);
   const [openSections, setOpenSections] = useState({});
   const location = useLocation();
 
@@ -14,6 +17,34 @@ export default function Sidebar() {
     }));
   };
 
+  // Create favorite tools category
+  const favoriteTools = tools
+    .flatMap(category => category.items)
+    .filter(tool => favoriteToolIds.includes(tool.id))
+    .map(({ name, path, icon }) => ({ name, path, icon }));
+
+  const favoriteCategory = user && favoriteTools.length > 0 ? [{
+    category: "Your Favorite Tools",
+    icon: <Heart size={18} />,
+    items: favoriteTools
+  }] : [];
+
+  // Combine favorite category with regular categories
+  const allCategories = [...favoriteCategory, ...tools];
+
+  if (isLoading) {
+    return (
+      <aside className="w-64 fixed top-0 left-0 h-screen bg-gray-900 text-white p-4 overflow-y-auto z-50">
+        <Link to="/">
+          <h2 className="text-xl font-bold cursor-pointer hover:text-gray-300">
+            IT - TOOLS
+          </h2>
+        </Link>
+        <div className="mt-4">Loading tools...</div>
+      </aside>
+    );
+  }
+
   return (
     <aside className="w-64 fixed top-0 left-0 h-screen bg-gray-900 text-white p-4 overflow-y-auto z-50">
       <Link to="/">
@@ -23,9 +54,9 @@ export default function Sidebar() {
       </Link>
       <nav>
         <ul className="mt-4 space-y-2">
-          {tools.map(({ category, icon, items }) => (
+          {allCategories.map(({ category, icon, items }) => (
             <li key={category}>
-              {/* Tiêu đề danh mục */}
+              {/* Category header */}
               <button
                 className="flex items-center justify-between w-full p-2 hover:bg-gray-700 rounded"
                 onClick={() => toggleSection(category)}
@@ -37,7 +68,7 @@ export default function Sidebar() {
                 {openSections[category] ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
               </button>
 
-              {/* Danh sách tool trong danh mục */}
+              {/* Tool list in category */}
               {openSections[category] && (
                 <ul className="pl-6 mt-1 space-y-1">
                   {items.map(({ name, path, icon }) => (
@@ -62,4 +93,3 @@ export default function Sidebar() {
     </aside>
   );
 }
-// Để hiển thị danh sách tool, chúng ta sẽ sử dụng một danh sách tools được import từ file tools.js.

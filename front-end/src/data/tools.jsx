@@ -1,5 +1,4 @@
 import axios from "axios";
-import React, { useState, useEffect } from "react";
 import { KeyRound, Hash, Lock, Code, Globe, Calendar, Ruler, Link, ShieldCheck, ImagePlay, QrCode } from "lucide-react";
 
 // Static fallback tools with icons and descriptions
@@ -9,18 +8,21 @@ const staticTools = [
     icon: <Lock size={18} />,
     items: [
       {
+        id: 1, // Add static IDs for fallback
         name: "Token Generator",
         path: "/token-generator",
         icon: <KeyRound size={18} />,
         description: "Generate random string with the chars you want, uppercase or...",
       },
       {
+        id: 2,
         name: "Hash Text",
         path: "/hash-text",
         icon: <Hash size={18} />,
         description: "Hash a text string using MD5, SHA-256, SHA-512...",
       },
       {
+        id: 3,
         name: "Bcrypt",
         path: "/bcrypt",
         icon: <Lock size={18} />,
@@ -33,12 +35,14 @@ const staticTools = [
     icon: <Code size={18} />,
     items: [
       {
+        id: 4,
         name: "Date-Time Converter",
         path: "/date-time",
         icon: <Calendar size={18} />,
         description: "Convert timestamps to readable dates.",
       },
       {
+        id: 5,
         name: "Unit Converter",
         path: "/unit-converter",
         icon: <Ruler size={18} />,
@@ -51,12 +55,14 @@ const staticTools = [
     icon: <Globe size={18} />,
     items: [
       {
+        id: 6,
         name: "URL Parser",
         path: "/url-parser",
         icon: <Link size={18} />,
         description: "Parse and analyze URLs quickly.",
       },
       {
+        id: 7,
         name: "JWT Parser",
         path: "/jwt-parser",
         icon: <ShieldCheck size={18} />,
@@ -69,6 +75,7 @@ const staticTools = [
     icon: <ImagePlay size={18} />,
     items: [
       {
+        id: 8,
         name: "Wi-Fi QR Code Generator",
         path: "/wifi-qr",
         icon: <QrCode size={18} />,
@@ -79,7 +86,7 @@ const staticTools = [
 ];
 
 // Function to fetch and merge tools from backend
-const fetchToolsFromBackend = async () => {
+export const fetchTools = async () => {
   try {
     const response = await axios.get("http://localhost:5074/api/tools/list");
     const backendTools = response.data;
@@ -90,27 +97,24 @@ const fetchToolsFromBackend = async () => {
       let category = acc.find((cat) => cat.category === categoryName);
 
       if (!category) {
-        // Use static category icon if available, else a default
         const staticCategory = staticTools.find((cat) => cat.category === categoryName);
         category = {
           category: categoryName,
-          icon: staticCategory ? staticCategory.icon : <Code size={18} />, // Default icon
+          icon: staticCategory ? staticCategory.icon : <Code size={18} />,
           items: [],
         };
         acc.push(category);
       }
 
-      // Map backend path to frontend path
-      console.log(tool.path);
-      // Check if tool exists in static list for icon and description
       const staticCategory = staticTools.find((cat) => cat.category === categoryName);
       const staticTool = staticCategory?.items.find((item) => item.name === tool.name);
 
       category.items.push({
+        id: tool.id, // Ensure backend id is used
         name: tool.name,
         path: tool.path,
-        icon: staticTool ? staticTool.icon : <Code size={18} />, // Default icon for new tools
-        description: tool ? tool.description : "No description available",
+        icon: staticTool ? staticTool.icon : <Code size={18} />,
+        description: tool.description || staticTool?.description || "No description available",
       });
 
       return acc;
@@ -119,16 +123,6 @@ const fetchToolsFromBackend = async () => {
     return groupedTools;
   } catch (error) {
     console.error("Failed to fetch tools from backend:", error);
-    return staticTools; // Fallback to static list on error
+    return staticTools; // Fallback to static list
   }
 };
-
-// Initialize tools with static data, update with backend data
-let tools = staticTools;
-
-// Fetch tools at module load (top-level await requires ESM support)
-(async () => {
-  tools = await fetchToolsFromBackend();
-})();
-
-export { tools };

@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }) => {
         const response = await axios.get('http://localhost:5074/api/account/check', {
           withCredentials: true,
         });
-        setUser({ username: response.data.username });
+        setUser({ username: response.data.username, role: response.data.role });
       } catch (error) {
         setUser(null);
       } finally {
@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }) => {
         { username, password },
         { withCredentials: true }
       );
-      setUser({ username: response.data.username });
+      setUser({ username: response.data.username, role: 'User' });
       navigate('/');
       return { success: true, message: response.data.message };
     } catch (error) {
@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }) => {
     try {
       await axios.post('http://localhost:5074/api/account/logout', {}, { withCredentials: true });
       setUser(null);
-      navigate('/login');
+      navigate('/');
     } catch (error) {
       console.error('Logout failed:', error);
     }
