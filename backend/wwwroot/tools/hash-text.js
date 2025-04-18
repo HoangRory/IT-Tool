@@ -1841,7 +1841,9 @@ function encodeResult(bytes, encoding) {
       return Array.from(bytes).map((b) => b.toString(16).padStart(2, "0")).join("");
   }
 }
-function hashText(input, encoding = "HEX") {
+function run(obj) {
+  const input = obj.input || "";
+  const encoding = obj.encoding || "HEX";
   const textBytes = new TextEncoder().encode(input);
   const result = {
     MD5: encodeResult(Uint8Array.from((0, import_md5.default)(input).words.map((w) => [
@@ -1858,10 +1860,10 @@ function hashText(input, encoding = "HEX") {
     SHA3: encodeResult(sha3_512(textBytes), encoding),
     RIPEMD160: encodeResult(ripemd160(textBytes), encoding)
   };
-  return { output: result };
+  return  result;
 }
 export {
-  hashText
+  run
 };
 /*! Bundled license information:
 

@@ -28,6 +28,8 @@ export default function AppRoutes() {
         }
       >
         <Route path="/" element={<Home />} />
+
+        {/* tool crypto */}
         <Route path="/hash-text" element={<HashText />} />
         <Route path="/bcrypt" element={<Bcrypt />} />
         <Route path="/wifi-qr" element={<WifiQR />} />

@@ -8,7 +8,7 @@ export default function MainLayout() {
       {/* Sidebar cố định */}
       <Sidebar />
 
-      <div className="flex flex-col flex-1">
+      <div className="flex flex-col flex-1 ml-64">
         {/* Navbar cố định */}
         <Navbar />
 

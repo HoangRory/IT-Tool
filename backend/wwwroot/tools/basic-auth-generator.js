@@ -18,13 +18,13 @@ function base64Encode(str) {
 
 /**
  * Tạo Basic Authorization header từ username và password
- * @param {string} username 
- * @param {string} password 
+ * @param {object} input - Đối tượng chứa username và password 
  * @returns {string} - Header: "Authorization: Basic xxx"
  */
-function generateBasicAuthHeader(username, password) {
-  return `Authorization: Basic ${base64Encode(`${username}:${password}`)}`;
+function run(input) {
+  const { username, password } = input;
+  return {result : `Authorization: Basic ${base64Encode(`${username}:${password}`)}`};
 }
 
 // Export nếu dùng trong module
-export { generateBasicAuthHeader };
+export { run };

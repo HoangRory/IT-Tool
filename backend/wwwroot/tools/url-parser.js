@@ -1,7 +1,7 @@
-export function parseUrl(url) {
+export function run(input) {
+    const url = typeof input === "string" ? input : input.url;
     const urlObj = new URL(url);
     const searchParams = Object.fromEntries(urlObj.searchParams.entries());
-
     return {
         protocol: urlObj.protocol,
         username: urlObj.username,
@@ -12,4 +12,4 @@ export function parseUrl(url) {
         search: urlObj.search,
         searchParams: searchParams
     };
-}
+}  
