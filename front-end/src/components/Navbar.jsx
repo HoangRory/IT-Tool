@@ -12,11 +12,6 @@ export default function Navbar() {
     <nav className="flex items-center justify-between bg-gray-800 text-white p-4">
       <SearchBar />
       <div className="flex items-center gap-4">
-        <Link to="/add-tool">
-          <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md transition-colors">
-            Add Tool
-          </button>
-        </Link>
         <ThemeToggle />
         {user ? (
           <LogOut />

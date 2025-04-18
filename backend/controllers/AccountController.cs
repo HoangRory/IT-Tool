@@ -46,7 +46,7 @@ namespace Backend.Controllers
 
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal);
 
-            return Ok(new { Message = "Login successful", Username = user.Username });
+            return Ok(new { Message = "Login successful", Username = user.Username, Role = user.Role ?? "User" });
         }
 
         [HttpPost("logout")]
@@ -61,7 +61,8 @@ namespace Backend.Controllers
         public IActionResult CheckAuth()
         {
             var username = User.FindFirst(ClaimTypes.Name)?.Value;
-            return Ok(new { Username = username });
+            var role = User.FindFirst(ClaimTypes.Role)?.Value;
+            return Ok(new { Username = username, Role = role });
         }
 
         [HttpPost("register")]

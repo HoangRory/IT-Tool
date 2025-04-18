@@ -20,11 +20,13 @@ import MathEvaluator from "../pages/Math/MathEvaluator";
 import ETACalculator from "../pages/Math/ETACaculator";
 import Login from '../components/Login';
 import Signup from '../components/Signup';
-import ProtectedRoute from '../components/ProtectedRoute';
+import ProtectedRoute from './ProtectedRoute';
+import AdminRoute from './AdminRoutes';
 import PercentageCalculator from "../pages/Math/PercentageCalculator";
 import TextStatistics from "../pages/Text/TextStatistics";
 import AddTool  from "../pages/AddTool";
 import NumeronymGenerator from "../pages/Text/NumeronymGenerator";
+import AdminDashboard from "../pages/Admin/AdminDashboard";
 
 export default function AppRoutes() {
   return (
@@ -75,10 +77,19 @@ export default function AppRoutes() {
         <Route path="/text-statistics" element={<TextStatistics />} /> {/* Add this route */}
         <Route path="/numeronym-generator" element={<NumeronymGenerator />} /> {/* Add this route */}
 
-
-        {/* AddTool page */}
-
-        <Route path="/add-tool" element={<AddTool />} />
+        {/* Protect all /admin/* routes */}
+        <Route
+          path="/admin/*"
+          element={
+            <AdminRoute>
+              <Routes>
+                <Route index element={<AdminDashboard />} />
+                {/* Add more admin routes here, e.g., <Route path="settings" element={<AdminSettings />} /> */}
+                <Route path="add-tool" element={<AddTool />} />
+              </Routes>
+            </AdminRoute>
+          }
+        />
       </Route>
     </Routes>
   );

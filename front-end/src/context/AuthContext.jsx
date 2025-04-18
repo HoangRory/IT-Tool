@@ -15,6 +15,7 @@ export const AuthProvider = ({ children }) => {
         const response = await axios.get('http://localhost:5074/api/account/check', {
           withCredentials: true,
         });
+        console.log(response.data.role);
         setUser({ username: response.data.username, role: response.data.role });
       } catch (error) {
         setUser(null);
@@ -32,8 +33,13 @@ export const AuthProvider = ({ children }) => {
         { username, password },
         { withCredentials: true }
       );
-      setUser({ username: response.data.username, role: 'User' });
-      navigate('/');
+      const userData = { username: response.data.username, role: response.data.role };
+      setUser(userData);
+      // Navigate based on role
+      console.log("Role:", userData.role);
+      const targetPath = userData.role === 'admin' ? '/admin' : '/';
+      console.log("Navigating to:", targetPath);
+      navigate(targetPath);
       return { success: true, message: response.data.message };
     } catch (error) {
       setUser(null);
