@@ -26,7 +26,11 @@ import PercentageCalculator from "../pages/Math/PercentageCalculator";
 import TextStatistics from "../pages/Text/TextStatistics";
 import AddTool  from "../pages/AddTool";
 import NumeronymGenerator from "../pages/Text/NumeronymGenerator";
+<<<<<<< HEAD
 import AdminDashboard from "../pages/Admin/AdminDashboard";
+=======
+import StringObfuscator from "../pages/Text/StringObfuscator";
+>>>>>>> 9de132b5b8b385013608ed22c56e58b69b59cd37
 
 export default function AppRoutes() {
   return (
@@ -76,6 +80,7 @@ export default function AppRoutes() {
         {/* tool text */}
         <Route path="/text-statistics" element={<TextStatistics />} /> {/* Add this route */}
         <Route path="/numeronym-generator" element={<NumeronymGenerator />} /> {/* Add this route */}
+        <Route path="/string-obfuscator" element={<StringObfuscator />} /> {/* Add this route */}
 
         {/* Protect all /admin/* routes */}
         <Route
