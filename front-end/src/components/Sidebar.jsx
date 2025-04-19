@@ -1,6 +1,6 @@
 import { useState, useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { ChevronDown, ChevronRight, Heart, Users, Plus } from "lucide-react";
+import { ChevronDown, ChevronRight, Heart, Users, Plus, Wrench } from "lucide-react";
 import { ToolsContext } from "../context/ToolsContext";
 import { AuthContext } from "../context/AuthContext";
 
@@ -68,6 +68,17 @@ export default function Sidebar() {
                 >
                   <Users size={18} />
                   <span>User Management</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/admin/tool-management"
+                  className={`flex items-center gap-2 block p-2 rounded ${
+                    location.pathname === '/admin/tool-management' ? "bg-blue-500" : "hover:bg-green-600"
+                  }`}
+                >
+                  <Wrench size={18} />
+                  <span>Tool Management</span>
                 </Link>
               </li>
               <li>

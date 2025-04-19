@@ -15,7 +15,7 @@ export default function AddTool() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!file) {
-      setError("Please select a DLL file.");
+      setError("Please select a JS file.");
       return;
     }
 

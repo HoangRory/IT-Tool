@@ -2,52 +2,55 @@ import { useState, useEffect } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-export default function UserManagement() {
-    const [allUsers, setAllUsers] = useState([]);
-    const [displayedUsers, setDisplayedUsers] = useState([]);
+export default function ToolManagement() {
+    const [allTools, setAllTools] = useState([]);
+    const [displayedTools, setDisplayedTools] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [selectedRole, setSelectedRole] = useState('All Roles');
+    const [selectedCategory, setSelectedCategory] = useState('All Categories');
     const [sortBy, setSortBy] = useState('default');
-    const [filteredUsers, setFilteredUsers] = useState([]);
+    const [categories, setCategories] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [pageInput, setPageInput] = useState('');
+    const [filteredTools, setFilteredTools] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const usersPerPage = 10;
-    const roles = ['All Roles', 'user', 'premium', 'admin'];
+    const toolsPerPage = 10;
 
     useEffect(() => {
-        fetchUsers();
+        fetchTools();
     }, []);
 
-    const fetchUsers = async () => {
+    const fetchTools = async () => {
         setLoading(true);
-        const loadingToast = toast.loading('Loading users...');
         setError(null);
+        const loadingToast = toast.loading('Loading tools...');
         try {
-            const response = await fetch('/api/account/users', {
+            const response = await fetch('/api/tools/list', {
                 credentials: 'include'
             });
             if (!response.ok) {
-                throw new Error('Failed to fetch users');
+                throw new Error('Failed to fetch tools');
             }
             const data = await response.json();
-            setAllUsers(data);
-            applyFiltersAndSort('', 'All Roles', 'default', data);
+            setAllTools(data);
+            applyFiltersAndSort('', 'All Categories', 'default', data);
+            const uniqueCategories = ['All Categories', ...new Set(data.map(tool => tool.category))];
+            setCategories(uniqueCategories);
             toast.update(loadingToast, {
-                render: 'Users loaded successfully',
+                render: 'Tools loaded successfully',
                 type: 'success',
                 isLoading: false,
                 autoClose: 2000
             });
         } catch (error) {
-            console.error('Error fetching users:', error);
-            setError('Failed to load users. Please try again.');
-            setAllUsers([]);
-            setFilteredUsers([]);
-            setDisplayedUsers([]);
+            console.error('Error fetching tools:', error);
+            setError('Failed to load tools. Please try again.');
+            setAllTools([]);
+            setFilteredTools([]);
+            setDisplayedTools([]);
+            setCategories(['All Categories']);
             toast.update(loadingToast, {
-                render: 'Failed to load users',
+                render: 'Failed to load tools',
                 type: 'error',
                 isLoading: false,
                 autoClose: 3000
@@ -60,54 +63,52 @@ export default function UserManagement() {
         const term = e.target.value;
         setSearchTerm(term);
         setCurrentPage(1);
-        applyFiltersAndSort(term, selectedRole, sortBy, allUsers);
+        applyFiltersAndSort(term, selectedCategory, sortBy, allTools);
     };
 
-    const handleRoleChange = (e) => {
-        const role = e.target.value;
-        setSelectedRole(role);
+    const handleCategoryChange = (e) => {
+        const category = e.target.value;
+        setSelectedCategory(category);
         setCurrentPage(1);
-        applyFiltersAndSort(searchTerm, role, sortBy, allUsers);
+        applyFiltersAndSort(searchTerm, category, sortBy, allTools);
     };
 
     const handleSortChange = (e) => {
         const sortOption = e.target.value;
         setSortBy(sortOption);
         setCurrentPage(1);
-        applyFiltersAndSort(searchTerm, selectedRole, sortOption, allUsers);
+        applyFiltersAndSort(searchTerm, selectedCategory, sortOption, allTools);
     };
 
-    const applyFiltersAndSort = (term, role, sortOption, usersList) => {
-        let filtered = [...usersList];
+    const applyFiltersAndSort = (term, category, sortOption, toolsList) => {
+        let filtered = [...toolsList];
 
         if (term.trim() !== '') {
-            filtered = filtered.filter(user =>
-                user.username.toLowerCase().includes(term.toLowerCase())
+            filtered = filtered.filter(tool =>
+                tool.name.toLowerCase().includes(term.toLowerCase())
             );
         }
 
-        if (role !== 'All Roles') {
-            filtered = filtered.filter(user => user.role.toLowerCase() === role.toLowerCase());
+        if (category !== 'All Categories') {
+            filtered = filtered.filter(tool => tool.category === category);
         }
 
         if (sortOption === 'name') {
-            filtered.sort((a, b) => a.username.localeCompare(b.username));
-        } else if (sortOption === 'role') {
-            filtered.sort((a, b) => a.role.localeCompare(b.role));
+            filtered.sort((a, b) => a.name.localeCompare(b.name));
         }
 
-        setFilteredUsers(filtered);
+        setFilteredTools(filtered);
         const startIndex = 0;
-        setDisplayedUsers(filtered.slice(startIndex, startIndex + usersPerPage));
-        setError(filtered.length === 0 ? 'No users found matching the criteria.' : null);
+        setDisplayedTools(filtered.slice(startIndex, startIndex + toolsPerPage));
+        setError(filtered.length === 0 ? 'No tools found matching the criteria.' : null);
     };
 
     const handlePageChange = (pageNumber) => {
         if (pageNumber >= 1 && pageNumber <= totalPages) {
             setCurrentPage(pageNumber);
-            setPageInput(''); // Clear input after navigation
-            const startIndex = (pageNumber - 1) * usersPerPage;
-            setDisplayedUsers(filteredUsers.slice(startIndex, startIndex + usersPerPage));
+            setPageInput('');
+            const startIndex = (pageNumber - 1) * toolsPerPage;
+            setDisplayedTools(filteredTools.slice(startIndex, startIndex + toolsPerPage));
         }
     };
 
@@ -129,17 +130,15 @@ export default function UserManagement() {
         }
     };
 
-    const handleRoleToggle = (user) => {
-        const currentRole = user.role.toLowerCase();
-        const newRole = currentRole === 'premium' ? 'user' : 'premium';
-
+    const handleTogglePremium = (tool) => {
+        const newStatus = !tool.isPremium;
         toast(
             <div>
-                <p>Are you sure you want to {newRole === 'premium' ? 'upgrade' : 'downgrade'} {user.username} to {newRole}?</p>
+                <p>Are you sure you want to {newStatus ? 'set' : 'remove'} {tool.name} as {newStatus ? 'Premium' : 'non-Premium'}?</p>
                 <div className="flex justify-end space-x-2 mt-2">
                     <button
                         className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-                        onClick={() => performRoleToggle(user, newRole)}
+                        onClick={() => performTogglePremium(tool, newStatus)}
                     >
                         Confirm
                     </button>
@@ -159,38 +158,38 @@ export default function UserManagement() {
         );
     };
 
-    const performRoleToggle = async (user, newRole) => {
-        const loadingToast = toast.loading(`Updating role for ${user.username}...`);
+    const performTogglePremium = async (tool, newStatus) => {
+        const loadingToast = toast.loading(`Updating premium status for ${tool.name}...`);
         try {
-            const response = await fetch(`/api/account/user/${user.username}/role`, {
+            const response = await fetch(`/api/tool/${tool.id}/premium`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ role: newRole }),
+                body: JSON.stringify({ isPremium: newStatus }),
                 credentials: 'include'
             });
 
             if (response.ok) {
-                const updatedUsers = allUsers.map(u =>
-                    u.username === user.username ? { ...u, role: newRole } : u
+                const updatedTools = allTools.map(t =>
+                    t.id === tool.id ? { ...t, isPremium: newStatus } : t
                 );
-                setAllUsers(updatedUsers);
-                applyFiltersAndSort(searchTerm, selectedRole, sortBy, updatedUsers);
+                setAllTools(updatedTools);
+                applyFiltersAndSort(searchTerm, selectedCategory, sortBy, updatedTools);
                 toast.update(loadingToast, {
-                    render: `Role updated to ${newRole} successfully`,
+                    render: `Premium status updated to ${newStatus ? 'Premium' : 'non-Premium'} successfully`,
                     type: 'success',
                     isLoading: false,
                     autoClose: 2000
                 });
             } else {
-                throw new Error('Failed to update role');
+                throw new Error('Failed to update premium status');
             }
         } catch (error) {
-            console.error('Error updating role:', error);
-            setError('Failed to update role. Please try again.');
+            console.error('Error updating premium status:', error);
+            setError('Failed to update premium status. Please try again.');
             toast.update(loadingToast, {
-                render: 'Failed to update role',
+                render: 'Failed to update premium status',
                 type: 'error',
                 isLoading: false,
                 autoClose: 3000
@@ -198,7 +197,74 @@ export default function UserManagement() {
         }
     };
 
-    const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+    const handleToggleEnabled = (tool) => {
+        const newStatus = !tool.isEnabled;
+        toast(
+            <div>
+                <p>Are you sure you want to {newStatus ? 'enable' : 'disable'} {tool.name}?</p>
+                <div className="flex justify-end space-x-2 mt-2">
+                    <button
+                        className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                        onClick={() => performToggleEnabled(tool, newStatus)}
+                    >
+                        Confirm
+                    </button>
+                    <button
+                        className="px-3 py-1 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
+                        onClick={() => toast.dismiss()}
+                    >
+                        Cancel
+                    </button>
+                </div>
+            </div>,
+            {
+                autoClose: false,
+                closeOnClick: false,
+                draggable: false
+            }
+        );
+    };
+
+    const performToggleEnabled = async (tool, newStatus) => {
+        const loadingToast = toast.loading(`Updating enabled status for ${tool.name}...`);
+        try {
+            const response = await fetch(`/api/tool/${tool.id}/enabled`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ isEnabled: newStatus }),
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                const updatedTools = allTools.map(t =>
+                    t.id === tool.id ? { ...t, isEnabled: newStatus } : t
+                );
+                setAllTools(updatedTools);
+                applyFiltersAndSort(searchTerm, selectedCategory, sortBy, updatedTools);
+                toast.update(loadingToast, {
+                    render: `Enabled status updated to ${newStatus ? 'Enabled' : 'Disabled'} successfully`,
+                    type: 'success',
+                    isLoading: false,
+                    autoClose: 2000
+                });
+            } else {
+                throw new Error('Failed to update enabled status');
+            }
+        } catch (error) {
+            console.error('Error updating enabled status:', error);
+            setError('Failed to update enabled status. Please try again.');
+            toast.update(loadingToast, {
+                render: 'Failed to update enabled status',
+                type: 'error',
+                isLoading: false,
+                autoClose: 3000
+            });
+        }
+    };
+
+    const totalPages = Math.ceil(filteredTools.length / toolsPerPage);
 
     return (
         <div className="max-w-3xl mx-auto p-6 space-y-5">
@@ -214,22 +280,22 @@ export default function UserManagement() {
                 pauseOnHover
                 theme="light"
             />
-            <h1 className="text-2xl font-bold">User Management</h1>
+            <h1 className="text-2xl font-bold">Tool Management</h1>
             <div className="flex gap-4 mb-4">
                 <input
                     type="text"
                     value={searchTerm}
                     onChange={handleSearch}
-                    placeholder="Search by username..."
+                    placeholder="Search by name..."
                     className="w-1/2 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <select
-                    value={selectedRole}
-                    onChange={handleRoleChange}
+                    value={selectedCategory}
+                    onChange={handleCategoryChange}
                     className="w-1/4 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                    {roles.map(role => (
-                        <option key={role} value={role}>{role === 'All Roles' ? 'All Roles' : role.charAt(0).toUpperCase() + role.slice(1)}</option>
+                    {categories.map(category => (
+                        <option key={category} value={category}>{category}</option>
                     ))}
                 </select>
                 <select
@@ -239,7 +305,6 @@ export default function UserManagement() {
                 >
                     <option value="default">Sort: Default</option>
                     <option value="name">Sort: Name (A-Z)</option>
-                    <option value="role">Sort: Role (A-Z)</option>
                 </select>
             </div>
             {error && (
@@ -253,40 +318,49 @@ export default function UserManagement() {
                         <table className="min-w-full bg-white border rounded-md">
                             <thead>
                                 <tr className="bg-gray-50">
-                                    <th className="px-4 py-2 border-b text-left text-sm font-medium text-gray-700">Username</th>
-                                    <th className="px-4 py-2 border-b text-left text-sm font-medium text-gray-700">Email</th>
-                                    <th className="px-4 py-2 border-b text-left text-sm font-medium text-gray-700">Role</th>
-                                    <th className="px-4 py-2 border-b text-left text-sm font-medium text-gray-700">Action</th>
+                                    <th className="px-4 py-2 border-b text-left text-sm font-medium text-gray-700">Name</th>
+                                    <th className="px-4 py-2 border-b text-left text-sm font-medium text-gray-700">Path</th>
+                                    <th className="px-4 py-2 border-b text-left text-sm font-medium text-gray-700">Category</th>
+                                    <th className="px-4 py-2 border-b text-left text-sm font-medium text-gray-700">Premium</th>
+                                    <th className="px-4 py-2 border-b text-left text-sm font-medium text-gray-700">Enabled</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {displayedUsers.map(user => (
-                                    <tr key={user.id} className="hover:bg-gray-50">
-                                        <td className="px-4 py-2 border-b text-sm text-gray-900">{user.username}</td>
-                                        <td className="px-4 py-2 border-b text-sm text-gray-900">{user.email}</td>
-                                        <td className="px-4 py-2 border-b text-sm text-gray-900">{user.role}</td>
+                                {displayedTools.map(tool => (
+                                    <tr key={tool.id} className="hover:bg-gray-50">
+                                        <td className="px-4 py-2 border-b text-sm text-gray-900">{tool.name}</td>
+                                        <td className="px-4 py-2 border-b text-sm text-gray-900">{tool.path}</td>
+                                        <td className="px-4 py-2 border-b text-sm text-gray-900">{tool.category}</td>
                                         <td className="px-4 py-2 border-b text-sm">
-                                            {user.role.toLowerCase() !== 'admin' ? (
-                                                <button
-                                                    onClick={() => handleRoleToggle(user)}
-                                                    className={`px-4 py-1 rounded-md text-white text-sm font-medium ${
-                                                        user.role.toLowerCase() === 'premium' 
-                                                        ? 'bg-red-500 hover:bg-red-600' 
-                                                        : 'bg-green-500 hover:bg-green-600'
-                                                    }`}
-                                                >
-                                                    {user.role.toLowerCase() === 'premium' ? 'Downgrade' : 'Upgrade'}
-                                                </button>
-                                            ) : (
-                                                <span className="text-gray-500">-</span>
-                                            )}
+                                            <button
+                                                onClick={() => handleTogglePremium(tool)}
+                                                className={`px-4 py-1 rounded-md text-white text-sm font-medium ${
+                                                    tool.isPremium 
+                                                    ? 'bg-red-500 hover:bg-red-600' 
+                                                    : 'bg-green-500 hover:bg-green-600'
+                                                }`}
+                                            >
+                                                {tool.isPremium ? 'Remove Premium' : 'Set Premium'}
+                                            </button>
+                                        </td>
+                                        <td className="px-4 py-2 border-b text-sm">
+                                            <button
+                                                onClick={() => handleToggleEnabled(tool)}
+                                                className={`px-4 py-1 rounded-md text-white text-sm font-medium ${
+                                                    tool.isEnabled 
+                                                    ? 'bg-red-500 hover:bg-red-600' 
+                                                    : 'bg-green-500 hover:bg-green-600'
+                                                }`}
+                                            >
+                                                {tool.isEnabled ? 'Disable' : 'Enable'}
+                                            </button>
                                         </td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
                     </div>
-                        {totalPages > 1 && (
+                    {totalPages > 1 && (
                         <div className="flex justify-center items-center space-x-2 mt-4">
                             <button
                                 onClick={() => handlePageChange(currentPage - 1)}

@@ -164,10 +164,56 @@ namespace Backend.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpPut("{toolId}/premium")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateToolPremiumStatus(int toolId, [FromBody] UpdateToolStatusModel model)
+        {
+            try
+            {
+                var success = await _toolService.UpdateToolPremiumStatusAsync(toolId, model.IsPremium);
+                if (!success)
+                {
+                    return NotFound(new { Message = "Tool not found" });
+                }
+                return Ok(new { Message = "Tool premium status updated successfully" });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error updating tool premium status: {ex.Message}");
+                return StatusCode(500, new { error = "An error occurred while updating tool premium status." });
+            }
+        }
+
+        [HttpPut("{toolId}/enabled")]
+        [Authorize(Roles = "admin")]
+        public async Task<IActionResult> UpdateToolEnabledStatus(int toolId, [FromBody] UpdateToolStatusModel model)
+        {
+            try
+            {
+                var success = await _toolService.UpdateToolEnabledStatusAsync(toolId, model.IsEnabled);
+                if (!success)
+                {
+                    return NotFound(new { Message = "Tool not found" });
+                }
+                return Ok(new { Message = "Tool enabled status updated successfully" });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error updating tool enabled status: {ex.Message}");
+                return StatusCode(500, new { error = "An error occurred while updating tool enabled status." });
+            }
+        }
     }
 
     public class FavoriteModel
     {
         public int ToolId { get; set; }
+    }
+
+    public class UpdateToolStatusModel
+    {
+        public bool IsPremium { get; set; }
+        public bool IsEnabled { get; set; }
     }
 }

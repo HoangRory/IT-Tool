@@ -96,5 +96,31 @@ namespace Backend.Models // Adjust namespace to match your project
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<bool> UpdateToolPremiumStatusAsync(int toolId, bool isPremium)
+        {
+            var tool = await _context.Tools.FindAsync(toolId);
+            if (tool == null)
+            {
+                return false;
+            }
+
+            tool.IsPremium = isPremium;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> UpdateToolEnabledStatusAsync(int toolId, bool isEnabled)
+        {
+            var tool = await _context.Tools.FindAsync(toolId);
+            if (tool == null)
+            {
+                return false;
+            }
+
+            tool.IsEnabled = isEnabled;
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }

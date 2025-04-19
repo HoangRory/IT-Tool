@@ -35,7 +35,8 @@ import Chronometer from '../pages/Measurement/Chronometer';
 import BenchmarkBuilder from '../pages/Measurement/BenchmarkBuilder';
 import PhoneParserAndFormatter from '../pages/Data/PhoneParserAndFormatter';
 import IbanValidatorAndParser from '../pages/Data/IBANValidatorAndParser';
-import AdminDashboard from "../pages/Admin/UserManagement";
+import UserManagement from "../pages/Admin/UserManagement";
+import ToolManagement from '../pages/Admin/ToolManagement';
 
 export default function AppRoutes() {
   return (
@@ -105,9 +106,10 @@ export default function AppRoutes() {
           element={
             <AdminRoute>
               <Routes>
-                <Route index element={<AdminDashboard />} />
+                <Route index element={<UserManagement />} />
                 {/* Add more admin routes here, e.g., <Route path="settings" element={<AdminSettings />} /> */}
-                <Route path="add-tool" element={<AddTool />} />
+                <Route path="/add-tool" element={<AddTool />} />
+                <Route path="/tool-management" element={<ToolManagement />} />
               </Routes>
             </AdminRoute>
           }
