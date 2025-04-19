@@ -12,10 +12,9 @@ export default function Navbar() {
   const { user } = useContext(AuthContext);
   const [openSearch, setOpenSearch] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const {tools} = useContext(ToolsContext);
+  const { tools } = useContext(ToolsContext);
 
   const allTools = tools.flatMap((category) => category.items);
-
 
   const filtered = allTools.filter((tool) =>
     tool.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -25,7 +24,7 @@ export default function Navbar() {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
-        e.preventDefault(); // ngăn mở tìm kiếm trình duyệt
+        e.preventDefault(); // Prevent browser search
         setOpenSearch(true);
       }
     };
@@ -39,11 +38,13 @@ export default function Navbar() {
       <nav className="flex items-center justify-between text-white p-4">
         <SearchBar onClick={() => setOpenSearch(true)} />
         <div className="flex items-center gap-4">
-          <Link to="/add-tool">
-            <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md transition-colors">
-              Add Tool
-            </button>
-          </Link>
+          {user && user.role === 'admin' && (
+            <Link to="/admin">
+              <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md transition-colors">
+                Admin
+              </button>
+            </Link>
+          )}
           <ThemeToggle />
           {user ? (
             <LogOut />

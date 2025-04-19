@@ -92,9 +92,9 @@ public partial class DefaultdbContext : DbContext
                 .HasMaxLength(255)
                 .HasColumnName("password_hash");
             entity.Property(e => e.Role)
-                .HasDefaultValueSql("'anonymous'")
-                .HasColumnType("enum('anonymous','user','premium','admin')")
-                .HasColumnName("role");
+                .HasMaxLength(50)
+                .UseCollation("utf8mb3_general_ci")
+                .HasCharSet("utf8mb3");
             entity.Property(e => e.Username)
                 .HasMaxLength(50)
                 .HasColumnName("username");

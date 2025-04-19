@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Controllers
 {
@@ -13,13 +15,16 @@ namespace Backend.Controllers
     public class AccountController : ControllerBase
     {
         private readonly AuthService _authService;
+        private readonly AccountService _accountService;
 
-        public AccountController(AuthService authService)
+        public AccountController(AuthService authService, AccountService accountService)
         {
             _authService = authService;
+            _accountService = accountService;
         }
 
         [HttpPost("login")]
+        [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
             if (!ModelState.IsValid)
@@ -38,7 +43,7 @@ namespace Backend.Controllers
             {
                 new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Role, user.Role ?? "User")
+                new Claim(ClaimTypes.Role, user.Role ?? "user")
             };
 
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -46,7 +51,7 @@ namespace Backend.Controllers
 
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal);
 
-            return Ok(new { Message = "Login successful", Username = user.Username, Role = user.Role ?? "User" });
+            return Ok(new { Message = "Login successful", Username = user.Username, Role = user.Role ?? "user" });
         }
 
         [HttpPost("logout")]
@@ -66,6 +71,7 @@ namespace Backend.Controllers
         }
 
         [HttpPost("register")]
+        [AllowAnonymous]
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
             if (!ModelState.IsValid)
@@ -81,6 +87,38 @@ namespace Backend.Controllers
 
             return Ok(new { Message = "Registration successful" });
         }
+
+        [HttpGet("users")]
+        [Authorize(Roles = "admin")]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var users = await _accountService.GetAllUsersAsync();
+            return Ok(users);
+        }
+
+        [HttpGet("user/{username}")]
+        [Authorize(Roles = "admin")]
+        public async Task<IActionResult> GetUserByUsername(string username)
+        {
+            var user = await _accountService.GetUserByUsernameAsync(username);
+            if (user == null)
+            {
+                return NotFound(new { Message = "User not found" });
+            }
+            return Ok(user);
+        }
+
+        [HttpPut("user/{username}/role")]
+        [Authorize(Roles = "admin")]
+        public async Task<IActionResult> UpdateUserRole(string username, [FromBody] UpdateRoleModel model)
+        {
+            var success = await _accountService.UpdateUserRoleAsync(username, model.Role);
+            if (!success)
+            {
+                return NotFound(new { Message = "User not found or invalid role" });
+            }
+            return Ok(new { Message = "Role updated successfully" });
+        }
     }
 
     public class LoginModel
@@ -93,5 +131,10 @@ namespace Backend.Controllers
     {
         public string Username { get; set; }
         public string Password { get; set; }
+    }
+
+    public class UpdateRoleModel
+    {
+        public string Role { get; set; }
     }
 }

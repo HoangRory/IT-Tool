@@ -25,7 +25,7 @@ import ProtectedRoute from './ProtectedRoute';
 import AdminRoute from './AdminRoutes';
 import PercentageCalculator from "../pages/Math/PercentageCalculator";
 import TextStatistics from "../pages/Text/TextStatistics";
-import AddTool  from "../pages/AddTool";
+import AddTool  from "../pages/Admin/AddTool";
 import NumeronymGenerator from "../pages/Text/NumeronymGenerator";
 import StringObfuscator from "../pages/Text/StringObfuscator";
 import MacAddressLookup from "../pages/Network/MacAddressLookup";

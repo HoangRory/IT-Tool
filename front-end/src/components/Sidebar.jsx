@@ -1,6 +1,6 @@
 import { useState, useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { ChevronDown, ChevronRight, Heart } from "lucide-react";
+import { ChevronDown, ChevronRight, Heart, Users, Plus } from "lucide-react";
 import { ToolsContext } from "../context/ToolsContext";
 import { AuthContext } from "../context/AuthContext";
 
@@ -9,6 +9,9 @@ export default function Sidebar() {
   const { user } = useContext(AuthContext);
   const [openSections, setOpenSections] = useState({});
   const location = useLocation();
+
+  const isAdminRoute = location.pathname.startsWith('/admin');
+  const isAdminUser = user && user.role === 'admin';
 
   const toggleSection = (category) => {
     setOpenSections((prev) => ({
@@ -29,7 +32,7 @@ export default function Sidebar() {
     items: favoriteTools
   }] : [];
 
-  // Combine favorite category with regular categories
+  // Combine favorite category with regular categories for non-admin routes
   const allCategories = [...favoriteCategory, ...tools];
 
   if (isLoading) {
@@ -54,40 +57,67 @@ export default function Sidebar() {
       </Link>
       <nav>
         <ul className="mt-4 space-y-2">
-          {allCategories.map(({ category, icon, items }) => (
-            <li key={category}>
-              {/* Category header */}
-              <button
-                className="flex items-center justify-between w-full p-2 hover:hover:bg-green-600 rounded"
-                onClick={() => toggleSection(category)}
-              >
-                <div className="flex items-center gap-2">
-                  {icon}
-                  <span>{category}</span>
-                </div>
-                {openSections[category] ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
-              </button>
+          {isAdminRoute && isAdminUser ? (
+            <>
+              <li>
+                <Link
+                  to="/admin"
+                  className={`flex items-center gap-2 block p-2 rounded ${
+                    location.pathname === '/admin' ? "bg-blue-500" : "hover:bg-green-600"
+                  }`}
+                >
+                  <Users size={18} />
+                  <span>User Management</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/admin/add-tool"
+                  className={`flex items-center gap-2 block p-2 rounded ${
+                    location.pathname === '/admin/add-tool' ? "bg-blue-500" : "hover:bg-green-600"
+                  }`}
+                >
+                  <Plus size={18} />
+                  <span>Add Tool</span>
+                </Link>
+              </li>
+            </>
+          ) : (
+            allCategories.map(({ category, icon, items }) => (
+              <li key={category}>
+                {/* Category header */}
+                <button
+                  className="flex items-center justify-between w-full p-2 hover:bg-green-600 rounded"
+                  onClick={() => toggleSection(category)}
+                >
+                  <div className="flex items-center gap-2">
+                    {icon}
+                    <span>{category}</span>
+                  </div>
+                  {openSections[category] ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+                </button>
 
-              {/* Tool list in category */}
-              {openSections[category] && (
-                <ul className="pl-6 mt-1 space-y-1">
-                  {items.map(({ name, path, icon }) => (
-                    <li key={name}>
-                      <Link
-                        to={path}
-                        className={`flex items-center gap-2 block p-2 rounded ${
-                          location.pathname === path ? "hover:bg-blue-500" : "hover:bg-green-600"
-                        }`}
-                      >
-                        {icon}
-                        <span>{name}</span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </li>
-          ))}
+                {/* Tool list in category */}
+                {openSections[category] && (
+                  <ul className="pl-6 mt-1 space-y-1">
+                    {items.map(({ name, path, icon }) => (
+                      <li key={name}>
+                        <Link
+                          to={path}
+                          className={`flex items-center gap-2 block p-2 rounded ${
+                            location.pathname === path ? "bg-blue-500" : "hover:bg-green-600"
+                          }`}
+                        >
+                          {icon}
+                          <span>{name}</span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            ))
+          )}
         </ul>
       </nav>
     </aside>
