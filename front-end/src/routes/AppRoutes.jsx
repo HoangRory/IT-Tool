@@ -35,7 +35,7 @@ import Chronometer from '../pages/Measurement/Chronometer';
 import BenchmarkBuilder from '../pages/Measurement/BenchmarkBuilder';
 import PhoneParserAndFormatter from '../pages/Data/PhoneParserAndFormatter';
 import IbanValidatorAndParser from '../pages/Data/IBANValidatorAndParser';
-import AdminDashboard from "../pages/Admin/AdminDashboard";
+import AdminDashboard from "../pages/Admin/UserManagement";
 
 export default function AppRoutes() {
   return (
