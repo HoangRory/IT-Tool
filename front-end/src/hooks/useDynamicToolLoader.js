@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
  */
 export function useDynamicToolLoader(toolName, exportName) {
     const [toolFn, setToolFn] = useState(null);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         (async () => {
@@ -23,6 +24,12 @@ export function useDynamicToolLoader(toolName, exportName) {
                 });
 
                 if (!res.ok) {
+                    if (res.status === 403) {
+                        const msg = await res.text();
+                        setError("Forbid");
+                        console.error(`Tool "${toolName}" is forbidden:`, msg);
+                        return;
+                    }
                     throw new Error(`Failed to load tool "${toolName}": ${res.statusText}`);
                 }
 
@@ -44,5 +51,5 @@ export function useDynamicToolLoader(toolName, exportName) {
         console.log(`Loading tool "${toolName}"...`);
     }, [toolName, exportName]);
 
-    return toolFn;
+    return {toolFn, error};
 }

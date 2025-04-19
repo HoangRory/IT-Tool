@@ -28,7 +28,7 @@ namespace Backend.Controllers
             try
             {
                 var tools = await _toolService.GetAllToolsAsync();
-                
+
                 var result = tools.Select(t => new
                 {
                     t.Id,
@@ -38,7 +38,7 @@ namespace Backend.Controllers
                     t.Description,
                     t.IsPremium
                 });
-                
+
                 Console.WriteLine("Fetched Tools:");
                 foreach (var tool in result)
                 {
@@ -101,7 +101,7 @@ namespace Backend.Controllers
                 return StatusCode(500, new { error = "An error occurred while toggling favorite." });
             }
         }
-    
+
 
         [HttpGet("by-path/{path}")]
         public async Task<IActionResult> GetToolByPath(string path)
@@ -132,6 +132,16 @@ namespace Backend.Controllers
             if (tool == null)
                 return NotFound($"Tool '{toolPath}' not found.");
             Console.WriteLine(tool.Name);
+            if (tool.IsPremium?? false)
+            {
+                var userRole = User.FindFirst(ClaimTypes.Role)?.Value ?? "anonymous";
+
+                if (userRole != "premium" && userRole != "admin")
+                {
+                    return StatusCode(StatusCodes.Status403Forbidden, "Bạn cần quyền Premium để sử dụng công cụ này.");
+
+                }
+            }
             try
             {
                 var result = await tool.ExecuteAsync(parameters);

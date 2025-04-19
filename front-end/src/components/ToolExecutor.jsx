@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import { useDynamicToolLoader } from "../hooks/useDynamicToolLoader";
 import DynamicField from "./DynamicField"; // Import component render input theo type
 import { ToolsContext } from "../context/ToolsContext";
+import PremiumRequiredModal from "./PremiumRequiredModal";
 
 /**
  * Component `ToolExecutor`
@@ -18,10 +19,11 @@ import { ToolsContext } from "../context/ToolsContext";
 export default function ToolExecutor({ toolPath, initialInput, schemaInput = [], schemaOutput = [], customRenderer }) {
   const [formData, setFormData] = useState(initialInput || {});
   const [output, setOutput] = useState(null);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const { tools, favoriteToolIds, isLoading } = useContext(ToolsContext);
-  const runTool = useDynamicToolLoader(toolPath, "run");
-  const allItems = tools.flatMap(cat => cat.items);
+  const { toolFn: runTool, error } = useDynamicToolLoader(toolPath, "run");
 
+  const matchedTool = tools.flatMap(category => category.items).find(tool => tool.path === toolPath);
   const toolName = matchedTool?.name || "Tool Executor";
   const description = matchedTool?.description || "No description provided.";
 
@@ -50,21 +52,46 @@ export default function ToolExecutor({ toolPath, initialInput, schemaInput = [],
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData, runTool]);
 
-  // Nếu người dùng truyền custom renderer → dùng giao diện của họ
+  useEffect(() => {
+    if (error && error.includes("Forbid")) {
+      setShowUpgradeModal(true);
+    }
+  }, [error]);
+
+
+  // Nếu truyền custom renderer → dùng giao diện của họ
   if (customRenderer) {
     return (
-      <div className="max-w-3xl mx-auto p-6 space-y-5">
+      <div className="max-w-3xl min-h-screen mx-auto p-6 space-y-5">
+        {showUpgradeModal && (
+          <PremiumRequiredModal
+            onClose={() => {
+              setShowUpgradeModal(false);
+              window.location.href = "/"; // hoặc "/"
+            }}
+          />
+        )}
         <h1 className="text-3xl font-bold mb-4 text-gray-800" >{toolName || ""}</h1>
         <p className="text-sm text-gray-600 mb-4">
           {description || "No description provided."}
         </p>
         {customRenderer({ formData, setFormData, output, runTool })}
+
       </div>
+
     )
   }
 
   return (
     <div className="flex justify-center bg-gray-100 min-h-screen pt-85">
+      {showUpgradeModal && (
+        <PremiumRequiredModal
+          onClose={() => {
+            setShowUpgradeModal(false);
+            window.location.href = "/"; // hoặc "/"
+          }}
+        />
+      )}
       <h1 className="text-3xl font-bold mb-4 text-gray-800">{toolName}</h1>
       <p className="text-sm text-gray-600 mb-4">
         {description || "No description provided."}

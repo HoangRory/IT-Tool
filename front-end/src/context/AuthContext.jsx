@@ -16,7 +16,7 @@ export const AuthProvider = ({ children }) => {
           withCredentials: true,
         });
         console.log(response.data.role);
-        setUser({ username: response.data.username, role: response.data.role });
+        setUser({ username: response.data.username, role: response.data.role, isPremium: response.data.role === 'premium' || response.data.role === 'admin' });
       } catch (error) {
         setUser(null);
       } finally {
