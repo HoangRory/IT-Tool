@@ -66,8 +66,8 @@ const FavoriteButton = ({ toolId, toolPath, isFavorite: initialIsFavorite, toggl
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         className={`p-2 rounded-full ${
-          isFavorite ? 'text-red-500' : 'text-green-400'
-          } hover:bg-green-700 transition-colors`}
+          isFavorite ? 'text-red-500' : 'text-green-400 hover:text-green-100'
+          } hover:bg-green-400 transition-colors`}
         aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
       >
         <Heart className={isFavorite ? 'fill-red-500' : ''} />

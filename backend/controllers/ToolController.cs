@@ -35,13 +35,14 @@ namespace Backend.Controllers
                     t.Name,
                     t.Path,
                     Category = t.Category != null ? t.Category.Name : "Uncategorized", // Use Category.Name or fallback
-                    t.Description
+                    t.Description,
+                    t.IsPremium
                 });
                 
                 Console.WriteLine("Fetched Tools:");
                 foreach (var tool in result)
                 {
-                    Console.WriteLine($"Name: {tool.Name}, Path: {tool.Path}, Category: {tool.Category}");
+                    Console.WriteLine($"Name: {tool.Name}, Path: {tool.Path}, Category: {tool.Category}, Premium: {(tool.IsPremium ?? false ? "Yes" : "No")}");
                 }
 
                 return Ok(result);

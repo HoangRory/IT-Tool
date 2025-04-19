@@ -21,7 +21,6 @@ export default function ToolExecutor({ toolPath, initialInput, schemaInput = [],
   const { tools, favoriteToolIds, isLoading } = useContext(ToolsContext);
   const runTool = useDynamicToolLoader(toolPath, "run");
   const allItems = tools.flatMap(cat => cat.items);
-  const matchedTool = allItems.find(tool => tool.path === toolPath);
 
   const toolName = matchedTool?.name || "Tool Executor";
   const description = matchedTool?.description || "No description provided.";

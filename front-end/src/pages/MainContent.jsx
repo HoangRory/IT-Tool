@@ -27,7 +27,7 @@ export default function Home() {
         <>
           <h2 className="text-2xl font-bold mb-4">Your Favorite Tools</h2>
           <div className="grid grid-cols-3 gap-4 mb-8">
-            {favoriteTools.map(({ id, name, icon, description, path }) => (
+            {favoriteTools.map(({ id, name, icon, description, path, isPremium }) => (
               <ToolCard
                 key={id}
                 id={id}
@@ -36,6 +36,7 @@ export default function Home() {
                 description={description}
                 path={path}
                 isFavorite={true}
+                isPremium={isPremium} // Assuming you have a way to check if the user is premium
               />
             ))}
           </div>
@@ -46,7 +47,7 @@ export default function Home() {
       <h2 className="text-2xl font-bold mb-4">All Tools</h2>
       <div className="grid grid-cols-3 gap-4">
         {tools.flatMap((category) =>
-          category.items.map(({ id, name, icon, description, path }) => (
+          category.items.map(({ id, name, icon, description, path, isPremium }) => (
             <ToolCard
               key={id}
               id={id}
@@ -55,6 +56,7 @@ export default function Home() {
               description={description}
               path={path}
               isFavorite={favoriteToolIds.includes(id)}
+              isPremium={isPremium} // Assuming you have a way to check if the user is premium
             />
           ))
         )}

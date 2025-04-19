@@ -13,6 +13,7 @@ const staticTools = [
         path: "/token-generator",
         icon: <KeyRound size={18} />,
         description: "Generate random string with the chars you want, uppercase or...",
+        isPremium: false
       },
       {
         id: 2,
@@ -20,6 +21,7 @@ const staticTools = [
         path: "/hash-text",
         icon: <Hash size={18} />,
         description: "Hash a text string using MD5, SHA-256, SHA-512...",
+        isPremium: false
       },
       {
         id: 3,
@@ -27,6 +29,7 @@ const staticTools = [
         path: "/bcrypt",
         icon: <Lock size={18} />,
         description: "Encrypt and compare passwords securely using bcrypt.",
+        isPremium: false
       },
     ],
   },
@@ -40,6 +43,7 @@ const staticTools = [
         path: "/date-time",
         icon: <Calendar size={18} />,
         description: "Convert timestamps to readable dates.",
+        isPremium: false
       },
       {
         id: 5,
@@ -47,6 +51,7 @@ const staticTools = [
         path: "/unit-converter",
         icon: <Ruler size={18} />,
         description: "Convert units of measurement easily.",
+        isPremium: false
       },
     ],
   },
@@ -60,6 +65,7 @@ const staticTools = [
         path: "/url-parser",
         icon: <Link size={18} />,
         description: "Parse and analyze URLs quickly.",
+        isPremium: false
       },
       {
         id: 7,
@@ -67,6 +73,7 @@ const staticTools = [
         path: "/jwt-parser",
         icon: <ShieldCheck size={18} />,
         description: "Decode and verify JSON Web Tokens.",
+        isPremium: false
       },
     ],
   },
@@ -80,6 +87,7 @@ const staticTools = [
         path: "/wifi-qr",
         icon: <QrCode size={18} />,
         description: "Generate a QR code to connect to Wi-Fi networks easily.",
+        isPremium: false
       },
     ],
   },
@@ -115,6 +123,7 @@ export const fetchTools = async () => {
         path: tool.path,
         icon: staticTool ? staticTool.icon : <Code size={18} />,
         description: tool.description || staticTool?.description || "No description available",
+        isPremium: tool.isPremium || staticTool?.isPremium || false,
       });
 
       return acc;
