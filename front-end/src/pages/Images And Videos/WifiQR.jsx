@@ -1,272 +1,276 @@
-import React, { useState, useEffect } from "react";
-import QRCode from "qrcode";
-import { Eye, EyeOff } from "lucide-react";
+import React from "react";
+import ToolExecutor from "../../components/ToolExecutor";
+import { ToastContainer, toast } from "react-toastify";
 
-export default function WifiQR() {
-  const [ssid, setSsid] = useState("");
-  const [password, setPassword] = useState("");
-  const [encryption, setEncryption] = useState("WPA"); // Default to WPA/WPA2
-  const [hiddenSsid, setHiddenSsid] = useState(false);
-  const [foregroundColor, setForegroundColor] = useState("#000000"); // Default black
-  const [backgroundColor, setBackgroundColor] = useState("#FFFFFF"); // Default white
-  const [qrCodeUrl, setQrCodeUrl] = useState(null);
-  const [error, setError] = useState(null);
-  const [showPassword, setShowPassword] = useState(false);
-
-  // Debounce function to delay QR code generation
-  const debounce = (func, delay) => {
-    let timeoutId;
-    return (...args) => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => func(...args), delay);
-    };
+export default function WifiQRCodeGenerator() {
+  const handleDownload = (dataUrl) => {
+    const link = document.createElement("a");
+    link.href = dataUrl;
+    link.download = "wifi-qr-code.png";
+    link.click();
+    toast.success("WiFi QR code downloaded!");
   };
 
-  // Escape special characters for WiFi payload
-  const escapeSpecialCharacters = (input) => {
-    return input.replace(/[\\;,:]/g, (match) => `\\${match}`);
-  };
+  const encryptionOptions = [
+    { label: "WPA/WPA2", value: "WPA" },
+    { label: "No Password", value: "nopass" },
+    { label: "WEP", value: "WEP" },
+    { label: "WPA2-EAP", value: "WPA2-EAP" },
+  ];
 
-  // Generate WiFi QR code
-  const generateQRCode = async () => {
-    setError(null);
-    setQrCodeUrl(null);
+  const eapMethods = [
+    "MD5",
+    "POTP",
+    "GTC",
+    "TLS",
+    "IKEv2",
+    "SIM",
+    "AKA",
+    "AKA'",
+    "TTLS",
+    "PWD",
+    "LEAP",
+    "PSK",
+    "FAST",
+    "TEAP",
+    "EKE",
+    "NOOB",
+    "PEAP",
+  ].map((method) => ({ label: method, value: method }));
 
-    if (!ssid.trim()) {
-      setError("SSID is required.");
-      return;
-    }
-
-    if (encryption !== "nopass" && !password.trim()) {
-      setError("Password is required for this encryption type.");
-      return;
-    }
-
-    // Validate colors
-    const isValidHex = (hex) => /^#([0-9A-F]{3}){1,2}$/i.test(hex);
-    if (!isValidHex(foregroundColor) || !isValidHex(backgroundColor)) {
-      setError("Invalid color format. Use hex codes (e.g., #FFFFFF).");
-      return;
-    }
-
-    try {
-      // Create WiFi payload based on encryption type
-      let wifiPayload;
-      const escapedSsid = escapeSpecialCharacters(ssid);
-      const escapedPassword = escapeSpecialCharacters(password);
-      const hidden = hiddenSsid ? "true" : "false";
-
-      switch (encryption) {
-        case "nopass":
-          wifiPayload = `WIFI:S:${escapedSsid};T:nopass;H:${hidden};;`;
-          break;
-        case "WPA":
-          wifiPayload = `WIFI:S:${escapedSsid};T:WPA;P:${escapedPassword};H:${hidden};;`;
-          break;
-        case "WEP":
-          wifiPayload = `WIFI:S:${escapedSsid};T:WEP;P:${escapedPassword};H:${hidden};;`;
-          break;
-        case "WPA2-EAP":
-          // Note: WPA2-EAP requires additional fields in real-world scenarios (e.g., username, EAP method),
-          // but for simplicity, we'll assume password-based WPA2-EAP here
-          wifiPayload = `WIFI:S:${escapedSsid};T:WPA2-EAP;P:${escapedPassword};H:${hidden};;`;
-          break;
-        default:
-          throw new Error("Invalid encryption type.");
-      }
-
-      // Generate QR code as data URL
-      const qrCodeDataUrl = await QRCode.toDataURL(wifiPayload, {
-        errorCorrectionLevel: "Q", // Quartile, for reliability
-        width: 256, // Size of QR code
-        margin: 2, // Margin around QR code
-        color: {
-          dark: foregroundColor, // Foreground color
-          light: backgroundColor, // Background color
-        },
-      });
-
-      setQrCodeUrl(qrCodeDataUrl);
-    } catch (err) {
-      console.error("Error generating QR code:", err);
-      setError("An error occurred while generating the QR code.");
-    }
-  };
-
-  // Debounced QR code generation
-  const debouncedGenerateQRCode = debounce(generateQRCode, 300);
-
-  // Trigger QR code generation on input changes
-  useEffect(() => {
-    debouncedGenerateQRCode();
-  }, [ssid, password, encryption, hiddenSsid, foregroundColor, backgroundColor]);
-
-  // Handle download
-  const handleDownload = () => {
-    if (qrCodeUrl) {
-      const link = document.createElement("a");
-      link.href = qrCodeUrl;
-      link.download = `wifi-qr-${ssid || "network"}.png`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-  };
-
-  // Clean up QR code URL on unmount
-  useEffect(() => {
-    return () => {
-      if (qrCodeUrl) {
-        // Data URLs don't require revocation, but kept for consistency
-        URL.revokeObjectURL(qrCodeUrl);
-      }
-    };
-  }, [qrCodeUrl]);
+  const eapPhase2Methods = ["None", "MSCHAPV2"].map((method) => ({
+    label: method,
+    value: method,
+  }));
 
   return (
-    <div className="flex justify-center bg-gray-100 min-h-screen pt-8">
-      <div className="w-full max-w-md p-6">
-        <h2 className="text-3xl font-bold text-center text-gray-800">WiFi QR Code Generator</h2>
-        <p className="text-sm text-center text-gray-600 mt-2">
-          Generate and download QR codes for quick connections to WiFi networks.
-        </p>
-        <div className="mt-6 p-6 border border-gray-300 rounded-lg shadow-md bg-white">
-          <div className="mb-4">
-            <label htmlFor="ssid" className="block text-gray-700 font-medium mb-2">
-              SSID:
-            </label>
-            <input
-              type="text"
-              id="ssid"
-              value={ssid}
-              onChange={(e) => setSsid(e.target.value)}
-              required
-              placeholder="Enter Wi-Fi SSID"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div className="mb-4">
-            <label htmlFor="encryption" className="block text-gray-700 font-medium mb-2">
-              Encryption:
-            </label>
-            <select
-              id="encryption"
-              value={encryption}
-              onChange={(e) => setEncryption(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="nopass">No Password</option>
-              <option value="WPA">WPA/WPA2</option>
-              <option value="WEP">WEP</option>
-              <option value="WPA2-EAP">WPA2-EAP</option>
-            </select>
-          </div>
-
-          {encryption !== "nopass" && (
-            <div className="mb-4">
-              <label htmlFor="password" className="block text-gray-700 font-medium mb-2">
-                Password:
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  id="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  placeholder="Enter Wi-Fi password"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700 focus:outline-none"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
+    <ToolExecutor
+      toolPath="wifi-qr"
+      initialInput={{
+        encryption: "WPA",
+        ssid: "",
+        isHiddenSSID: false,
+        password: "",
+        eapMethod: "PEAP",
+        eapIdentity: "",
+        eapAnonymous: false,
+        eapPhase2Method: "None",
+        foreground: "#000000ff",
+        background: "#ffffffff",
+      }}
+      schemaInput={[
+        {
+          type: "select",
+          name: "encryption",
+          label: "Encryption Method",
+          options: encryptionOptions,
+          autoRun: true,
+        },
+        {
+          type: "text",
+          name: "ssid",
+          label: "SSID",
+          placeholder: "Your WiFi SSID...",
+          autoRun: true,
+        },
+        {
+          type: "checkbox",
+          name: "isHiddenSSID",
+          label: "Hidden SSID",
+          autoRun: true,
+        },
+        {
+          type: "text",
+          name: "password",
+          label: "Password",
+          placeholder: "Your WiFi Password...",
+          autoRun: true,
+        },
+        {
+          type: "select",
+          name: "eapMethod",
+          label: "EAP Method",
+          options: eapMethods,
+          autoRun: true,
+        },
+        {
+          type: "text",
+          name: "eapIdentity",
+          label: "Identity",
+          placeholder: "Your EAP Identity...",
+          autoRun: true,
+        },
+        {
+          type: "checkbox",
+          name: "eapAnonymous",
+          label: "Anonymous",
+          autoRun: true,
+        },
+        {
+          type: "select",
+          name: "eapPhase2Method",
+          label: "EAP Phase 2 Method",
+          options: eapPhase2Methods,
+          autoRun: true,
+        },
+        {
+          type: "text",
+          name: "foreground",
+          label: "Foreground Color",
+          placeholder: "#000000ff",
+          autoRun: true,
+        },
+        {
+          type: "text",
+          name: "background",
+          label: "Background Color",
+          placeholder: "#ffffffff",
+          autoRun: true,
+        },
+      ]}
+      customRenderer={({ formData, setFormData, output }) => (
+        <div className="bg-white shadow-md rounded-xl p-6 space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-4">
+              <div>
+                <label className="block mb-2">Encryption Method</label>
+                <select
+                  value={formData.encryption || "WPA"}
+                  onChange={(e) => setFormData({ ...formData, encryption: e.target.value })}
+                  className="w-full border p-2 rounded"
                 >
-                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                </button>
+                  {encryptionOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="flex-1">
+                  <label className="block mb-2">SSID</label>
+                  <input
+                    type="text"
+                    value={formData.ssid || ""}
+                    onChange={(e) => setFormData({ ...formData, ssid: e.target.value })}
+                    placeholder="Your WiFi SSID..."
+                    className="w-full border p-2 rounded"
+                  />
+                </div>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={formData.isHiddenSSID || false}
+                    onChange={(e) => setFormData({ ...formData, isHiddenSSID: e.target.checked })}
+                  />
+                  Hidden SSID
+                </label>
+              </div>
+              {formData.encryption !== "nopass" && (
+                <div>
+                  <label className="block mb-2">Password</label>
+                  <input
+                    type="password"
+                    value={formData.password || ""}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    placeholder="Your WiFi Password..."
+                    className="w-full border p-2 rounded"
+                  />
+                </div>
+              )}
+              {formData.encryption === "WPA2-EAP" && (
+                <>
+                  <div>
+                    <label className="block mb-2">EAP Method</label>
+                    <select
+                      value={formData.eapMethod || "PEAP"}
+                      onChange={(e) => setFormData({ ...formData, eapMethod: e.target.value })}
+                      className="w-full border p-2 rounded"
+                    >
+                      {eapMethods.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="flex-1">
+                      <label className="block mb-2">Identity</label>
+                      <input
+                        type="text"
+                        value={formData.eapIdentity || ""}
+                        onChange={(e) => setFormData({ ...formData, eapIdentity: e.target.value })}
+                        placeholder="Your EAP Identity..."
+                        className="w-full border p-2 rounded"
+                      />
+                    </div>
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={formData.eapAnonymous || false}
+                        onChange={(e) => setFormData({ ...formData, eapAnonymous: e.target.checked })}
+                      />
+                      Anonymous
+                    </label>
+                  </div>
+                  <div>
+                    <label className="block mb-2">EAP Phase 2 Method</label>
+                    <select
+                      value={formData.eapPhase2Method || "None"}
+                      onChange={(e) => setFormData({ ...formData, eapPhase2Method: e.target.value })}
+                      className="w-full border p-2 rounded"
+                    >
+                      {eapPhase2Methods.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </>
+              )}
+              <div>
+                <label className="block mb-2">Foreground Color</label>
+                <input
+                  type="color"
+                  value={formData.foreground || "#000000ff"}
+                  onChange={(e) => setFormData({ ...formData, foreground: e.target.value })}
+                  className="w-20 h-10 border rounded"
+                />
+              </div>
+              <div>
+                <label className="block mb-2">Background Color</label>
+                <input
+                  type="color"
+                  value={formData.background || "#ffffffff"}
+                  onChange={(e) => setFormData({ ...formData, background: e.target.value })}
+                  className="w-20 h-10 border rounded"
+                />
               </div>
             </div>
-          )}
-
-          <div className="mb-4">
-            <label className="flex items-center">
-              <input
-                type="checkbox"
-                checked={hiddenSsid}
-                onChange={(e) => setHiddenSsid(e.target.checked)}
-                className="mr-2 h-4 w-4 text-blue-500 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <span className="text-gray-700 font-medium">Hidden SSID</span>
-            </label>
-          </div>
-
-          <div className="mb-4">
-            <label htmlFor="foregroundColor" className="block text-gray-700 font-medium mb-2">
-              Foreground Color:
-            </label>
-            <div className="flex items-center space-x-2">
-              <input
-                type="color"
-                id="foregroundColor"
-                value={foregroundColor}
-                onChange={(e) => setForegroundColor(e.target.value)}
-                className="w-12 h-12 p-0 border-none cursor-pointer"
-              />
-              <input
-                type="text"
-                value={foregroundColor}
-                onChange={(e) => setForegroundColor(e.target.value)}
-                placeholder="#000000"
-                className="w-24 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+            <div className="flex flex-col items-center gap-4">
+              {output && !output.error && (
+                <>
+                  <img
+                    src={output.qrcode}
+                    alt="WiFi QR Code"
+                    style={{ width: "200px", height: "200px" }}
+                  />
+                  <button
+                    onClick={() => handleDownload(output.qrcode)}
+                    className="bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
+                  >
+                    Download WiFi QR Code
+                  </button>
+                </>
+              )}
+              {output?.error && <p className="text-red-600">{output.error}</p>}
             </div>
           </div>
-
-          <div className="mb-4">
-            <label htmlFor="backgroundColor" className="block text-gray-700 font-medium mb-2">
-              Background Color:
-            </label>
-            <div className="flex items-center space-x-2">
-              <input
-                type="color"
-                id="backgroundColor"
-                value={backgroundColor}
-                onChange={(e) => setBackgroundColor(e.target.value)}
-                className="w-12 h-12 p-0 border-none cursor-pointer"
-              />
-              <input
-                type="text"
-                value={backgroundColor}
-                onChange={(e) => setBackgroundColor(e.target.value)}
-                placeholder="#FFFFFF"
-                className="w-24 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
-
-          {error && <p className="mt-4 text-center text-red-600">{error}</p>}
-          {qrCodeUrl && (
-            <div className="mt-6 text-center">
-              <h3 className="text-lg font-semibold text-gray-800">
-                Your Wi-Fi QR Code for {ssid}:
-              </h3>
-              <img
-                src={qrCodeUrl}
-                alt="Wi-Fi QR Code"
-                className="mt-4 mx-auto max-w-full h-auto"
-              />
-              <button
-                onClick={handleDownload}
-                className="mt-4 px-4 py-2 bg-black text-white font-semibold rounded-md shadow hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
-              >
-                Download QR Code
-              </button>
-            </div>
-          )}
+          <ToastContainer position="bottom-center" autoClose={1000} />
         </div>
-      </div>
-    </div>
+      )}
+    />
   );
 }

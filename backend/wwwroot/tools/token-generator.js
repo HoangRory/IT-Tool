@@ -1,36 +1,45 @@
-export function generateToken(uppercase, lowercase, numbers, symbols, length) {
-    const UPPERCASE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    const LOWERCASE_CHARS = "abcdefghijklmnopqrstuvwxyz";
-    const NUMBER_CHARS = "0123456789";
-    const SYMBOL_CHARS = "!@#$%^&*()-_=+[]{}|;:,.<>?";
-
-    let charPool = "";
-    if (uppercase) charPool += UPPERCASE_CHARS;
-    if (lowercase) charPool += LOWERCASE_CHARS;
-    if (numbers) charPool += NUMBER_CHARS;
-    if (symbols) charPool += SYMBOL_CHARS;
-
-    if (charPool.length === 0) {
-        return { error: "At least one character type must be selected." };
+export function shuffleString(str) {
+    const arr = str.split("");
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
     }
-
+    return arr.join("");
+  }
+  
+  export function run(input) {
+    console.log("run called with input:", input); // Debug log
+  
+    const {
+      withUppercase = true,
+      withLowercase = true,
+      withNumbers = true,
+      withSymbols = false,
+      length = 64,
+      refreshTrigger = 0, // Included to trigger re-run
+    } = input;
+  
+    // Validate inputs
+    if (!withUppercase && !withLowercase && !withNumbers && !withSymbols) {
+      return { error: "At least one character set must be selected" };
+    }
     if (length < 1 || length > 512) {
-        return { error: "Length must be between 1 and 512." };
+      return { error: "Length must be between 1 and 512" };
     }
-
-    try {
-        const randomBytes = new Uint8Array(length);
-        crypto.getRandomValues(randomBytes);
-
-        const poolArray = charPool.split("");
-        let result = "";
-        for (let i = 0; i < length; i++) {
-            const index = randomBytes[i] % poolArray.length;
-            result += poolArray[index];
-        }
-
-        return { token: result };
-    } catch (err) {
-        return { error: "An error occurred while generating the token." };
-    }
-}
+  
+    // Define character sets
+    const alphabet = [
+      withUppercase ? "ABCDEFGHIJKLMOPQRSTUVWXYZ" : "",
+      withLowercase ? "abcdefghijklmopqrstuvwxyz" : "",
+      withNumbers ? "0123456789" : "",
+      withSymbols ? ".,;:!?./-\"'#{([-|\\@)]=}*+" : "",
+    ].join("");
+  
+    // Generate token
+    const token = shuffleString(
+      alphabet.repeat(Math.ceil(length / alphabet.length))
+    ).substring(0, length);
+  
+    console.log("Generated token:", token); // Debug log
+    return { token };
+  }

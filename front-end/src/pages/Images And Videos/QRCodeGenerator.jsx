@@ -1,214 +1,131 @@
-import React, { useState, useEffect } from 'react';
-import QRCode from 'qrcode';
+import React from "react";
+import ToolExecutor from "../../components/ToolExecutor";
+import { ToastContainer, toast } from "react-toastify";
 
-const QRCodeGenerator = () => {
-  // State for form inputs and QR code result
-  const [text, setText] = useState('');
-  const [backgroundColor, setBackgroundColor] = useState('#FFFFFF');
-  const [foregroundColor, setForegroundColor] = useState('#000000');
-  const [errorResistance, setErrorResistance] = useState('medium');
-  const [qrCodeUrl, setQrCodeUrl] = useState(''); // Store data URL for QR code
-  const [error, setError] = useState(null); // Store error messages
-
-  // Function to generate QR code using qrcode library
-  const generateQRCode = async () => {
-    setError(null);
-    setQrCodeUrl('');
-
-    if (!text.trim()) {
-      return;
-    }
-
-    // Map error resistance to QR code error correction levels
-    const errorCorrectionLevel = {
-      low: 'L',
-      medium: 'M',
-      quartile: 'Q',
-      high: 'H',
-    }[errorResistance] || 'M'; // Default to medium
-
-    // Validate colors (ensure they are valid hex)
-    const isValidHex = (hex) => /^#([0-9A-F]{3}){1,2}$/i.test(hex);
-    if (!isValidHex(backgroundColor) || !isValidHex(foregroundColor)) {
-      setError('Invalid color format. Use hex codes (e.g., #FFFFFF).');
-      return;
-    }
-
-    try {
-      // Generate QR code as a data URL
-      const qrCodeDataUrl = await QRCode.toDataURL(text, {
-        errorCorrectionLevel,
-        color: {
-          dark: foregroundColor, // Foreground color
-          light: backgroundColor, // Background color
-        },
-        width: 256, // Size of QR code
-        margin: 2, // Margin around QR code
-      });
-
-      setQrCodeUrl(qrCodeDataUrl);
-    } catch (err) {
-      console.error('Error generating QR code:', err);
-      setError('An error occurred while generating the QR code.');
-    }
-  };
-
-  // Trigger QR code generation whenever inputs change (debounced)
-  useEffect(() => {
-    const debounce = setTimeout(() => {
-      generateQRCode();
-    }, 300);
-
-    return () => clearTimeout(debounce); // Cleanup timeout
-  }, [text, backgroundColor, foregroundColor, errorResistance]);
-
-  // Clean up QR code URL when component unmounts
-  useEffect(() => {
-    return () => {
-      if (qrCodeUrl) {
-        URL.revokeObjectURL(qrCodeUrl); // Prevent memory leaks (if needed)
-      }
-    };
-  }, [qrCodeUrl]);
-
-  // Handle download button click
-  const handleDownload = () => {
-    if (!qrCodeUrl) return;
-    const link = document.createElement('a');
-    link.href = qrCodeUrl;
-    link.download = 'qrcode.png';
-    document.body.appendChild(link);
+export default function QRCodeGenerator() {
+  const handleDownload = (dataUrl) => {
+    const link = document.createElement("a");
+    link.href = dataUrl;
+    link.download = "qr-code.png";
     link.click();
-    document.body.removeChild(link);
+    toast.success("QR code downloaded!");
   };
+
+  const errorCorrectionLevels = [
+    { label: "Low", value: "low" },
+    { label: "Medium", value: "medium" },
+    { label: "Quartile", value: "quartile" },
+    { label: "High", value: "high" },
+  ];
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      {/* Title */}
-      <h1 className="text-3xl font-bold text-gray-800 mb-2">
-        QR Code Generator
-      </h1>
-
-      {/* Description */}
-      <p className="text-gray-600 mb-6">
-        Generate and download a QR code for a URL or text with customizable
-        colors and error correction.
-      </p>
-
-      {/* Tool Content Box */}
-      <div className="bg-white shadow-md rounded-lg p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Left Column: Input Fields */}
-          <div className="space-y-6">
-            {/* Text Input */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Text or URL
-              </label>
-              <input
-                type="text"
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                placeholder="Enter text or URL"
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-
-            {/* Background Color */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Background Color
-              </label>
-              <div className="flex items-center space-x-2">
+    <ToolExecutor
+      toolPath="qr-code-generator"
+      initialInput={{
+        text: "https://it-tools.tech",
+        foreground: "#000000ff",
+        background: "#ffffffff",
+        errorCorrectionLevel: "medium",
+      }}
+      schemaInput={[
+        {
+          type: "textarea",
+          name: "text",
+          label: "Text or URL",
+          placeholder: "Your link or text...",
+          autoRun: true,
+        },
+        {
+          type: "text",
+          name: "foreground",
+          label: "Foreground Color",
+          placeholder: "#000000ff",
+          autoRun: true,
+        },
+        {
+          type: "text",
+          name: "background",
+          label: "Background Color",
+          placeholder: "#ffffffff",
+          autoRun: true,
+        },
+        {
+          type: "select",
+          name: "errorCorrectionLevel",
+          label: "Error Resistance",
+          options: errorCorrectionLevels,
+          autoRun: true,
+        },
+      ]}
+      customRenderer={({ formData, setFormData, output }) => (
+        <div className="bg-white shadow-md rounded-xl p-6 space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="col-span-2 space-y-4">
+              <div>
+                <label className="block mb-2">Text or URL</label>
+                <textarea
+                  value={formData.text || ""}
+                  onChange={(e) => setFormData({ ...formData, text: e.target.value })}
+                  placeholder="Your link or text..."
+                  className="w-full border p-2 rounded resize-y"
+                  rows={2}
+                />
+              </div>
+              <div>
+                <label className="block mb-2">Foreground Color</label>
                 <input
                   type="color"
-                  value={backgroundColor}
-                  onChange={(e) => setBackgroundColor(e.target.value)}
-                  className="w-12 h-12 p-0 border-none cursor-pointer"
-                />
-                <input
-                  type="text"
-                  value={backgroundColor}
-                  onChange={(e) => setBackgroundColor(e.target.value)}
-                  className="w-24 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={formData.foreground || "#000000ff"}
+                  onChange={(e) => setFormData({ ...formData, foreground: e.target.value })}
+                  className="w-20 h-10 border rounded"
                 />
               </div>
-            </div>
-
-            {/* Foreground Color */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Foreground Color
-              </label>
-              <div className="flex items-center space-x-2">
+              <div>
+                <label className="block mb-2">Background Color</label>
                 <input
                   type="color"
-                  value={foregroundColor}
-                  onChange={(e) => setForegroundColor(e.target.value)}
-                  className="w-12 h-12 p-0 border-none cursor-pointer"
-                />
-                <input
-                  type="text"
-                  value={foregroundColor}
-                  onChange={(e) => setForegroundColor(e.target.value)}
-                  className="w-24 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={formData.background || "#ffffffff"}
+                  onChange={(e) => setFormData({ ...formData, background: e.target.value })}
+                  className="w-20 h-10 border rounded"
                 />
               </div>
-            </div>
-
-            {/* Error Resistance Dropdown */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Error Resistance
-              </label>
-              <select
-                value={errorResistance}
-                onChange={(e) => setErrorResistance(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="quartile">Quartile</option>
-                <option value="high">High</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Right Column: QR Code Output */}
-          <div className="flex flex-col items-center">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">
-              QR Code Preview
-            </h2>
-            {qrCodeUrl ? (
-              <img
-                src={qrCodeUrl}
-                alt="Generated QR Code"
-                className="w-64 h-64 mb-4"
-              />
-            ) : (
-              <div className="w-64 h-64 bg-gray-100 flex items-center justify-center text-gray-500 mb-4">
-                Enter text to generate QR code
+              <div>
+                <label className="block mb-2">Error Resistance</label>
+                <select
+                  value={formData.errorCorrectionLevel || "medium"}
+                  onChange={(e) => setFormData({ ...formData, errorCorrectionLevel: e.target.value })}
+                  className="w-full border p-2 rounded"
+                >
+                  {errorCorrectionLevels.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
               </div>
-            )}
-            {error && (
-              <p className="text-red-500 text-sm mb-4">{error}</p>
-            )}
-            <button
-              onClick={handleDownload}
-              disabled={!qrCodeUrl}
-              className={`px-4 py-2 rounded-md text-white font-medium ${
-                qrCodeUrl
-                  ? 'bg-blue-600 hover:bg-blue-700'
-                  : 'bg-gray-400 cursor-not-allowed'
-              }`}
-            >
-              Download QR Code
-            </button>
+            </div>
+            <div className="flex flex-col items-center gap-4">
+              {output && !output.error && (
+                <>
+                  <img
+                    src={output.qrcode}
+                    alt="QR Code"
+                    style={{ width: "200px", height: "200px" }}
+                  />
+                  <button
+                    onClick={() => handleDownload(output.qrcode)}
+                    className="bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
+                  >
+                    Download QR Code
+                  </button>
+                </>
+              )}
+              {output?.error && <p className="text-red-600">{output.error}</p>}
+            </div>
           </div>
+          <ToastContainer position="bottom-center" autoClose={1000} />
         </div>
-      </div>
-    </div>
+      )}
+    />
   );
-};
-
-export default QRCodeGenerator;
+}
