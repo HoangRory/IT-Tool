@@ -107,7 +107,7 @@ export default function AppRoutes() {
           element={
             <AdminRoute>
               <Routes>
-                <Route index element={<UserManagement />} />
+                <Route path="/" element={<UserManagement />} />
                 {/* Add more admin routes here, e.g., <Route path="settings" element={<AdminSettings />} /> */}
                 <Route path="/add-tool" element={<AddTool />} />
                 <Route path="/tool-management" element={<ToolManagement />} />

@@ -2,50 +2,52 @@ import { useState, useEffect } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-export default function UpgradeRequest() {
-    const [allRequests, setAllRequests] = useState([]);
-    const [displayedRequests, setDisplayedRequests] = useState([]);
+export default function UserManagement() {
+    const [allUsers, setAllUsers] = useState([]);
+    const [displayedUsers, setDisplayedUsers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [sortByTime, setSortByTime] = useState('desc');
+    const [selectedRole, setSelectedRole] = useState('All Roles');
+    const [sortBy, setSortBy] = useState('default');
+    const [filteredUsers, setFilteredUsers] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [pageInput, setPageInput] = useState('');
-    const [filteredRequests, setFilteredRequests] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const requestsPerPage = 10;
+    const usersPerPage = 10;
+    const roles = ['All Roles', 'user', 'premium', 'admin'];
 
     useEffect(() => {
-        fetchRequests();
+        fetchUsers();
     }, []);
 
-    const fetchRequests = async () => {
+    const fetchUsers = async () => {
         setLoading(true);
+        const loadingToast = toast.loading('Loading users...');
         setError(null);
-        const loadingToast = toast.loading('Loading upgrade requests...');
         try {
-            const response = await fetch('/api/request/upgrade-requests', {
+            const response = await fetch('/api/account/users', {
                 credentials: 'include'
             });
             if (!response.ok) {
-                throw new Error('Failed to fetch upgrade requests');
+                throw new Error('Failed to fetch users');
             }
             const data = await response.json();
-            setAllRequests(data);
-            applyFiltersAndSort('', 'desc', data);
+            setAllUsers(data);
+            applyFiltersAndSort('', 'All Roles', 'default', data);
             toast.update(loadingToast, {
-                render: 'Upgrade requests loaded successfully',
+                render: 'Users loaded successfully',
                 type: 'success',
                 isLoading: false,
                 autoClose: 2000
             });
         } catch (error) {
-            console.error('Error fetching upgrade requests:', error);
-            setError('Failed to load upgrade requests. Please try again.');
-            setAllRequests([]);
-            setFilteredRequests([]);
-            setDisplayedRequests([]);
+            console.error('Error fetching users:', error);
+            setError('Failed to load users. Please try again.');
+            setAllUsers([]);
+            setFilteredUsers([]);
+            setDisplayedUsers([]);
             toast.update(loadingToast, {
-                render: 'Failed to load upgrade requests',
+                render: 'Failed to load users',
                 type: 'error',
                 isLoading: false,
                 autoClose: 3000
@@ -58,43 +60,54 @@ export default function UpgradeRequest() {
         const term = e.target.value;
         setSearchTerm(term);
         setCurrentPage(1);
-        applyFiltersAndSort(term, sortByTime, allRequests);
+        applyFiltersAndSort(term, selectedRole, sortBy, allUsers);
+    };
+
+    const handleRoleChange = (e) => {
+        const role = e.target.value;
+        setSelectedRole(role);
+        setCurrentPage(1);
+        applyFiltersAndSort(searchTerm, role, sortBy, allUsers);
     };
 
     const handleSortChange = (e) => {
         const sortOption = e.target.value;
-        setSortByTime(sortOption);
+        setSortBy(sortOption);
         setCurrentPage(1);
-        applyFiltersAndSort(searchTerm, sortOption, allRequests);
+        applyFiltersAndSort(searchTerm, selectedRole, sortOption, allUsers);
     };
 
-    const applyFiltersAndSort = (term, sortOption, requestsList) => {
-        let filtered = [...requestsList];
+    const applyFiltersAndSort = (term, role, sortOption, usersList) => {
+        let filtered = [...usersList];
 
         if (term.trim() !== '') {
-            filtered = filtered.filter(request =>
-                request.userName.toLowerCase().includes(term.toLowerCase())
+            filtered = filtered.filter(user =>
+                user.username.toLowerCase().includes(term.toLowerCase())
             );
         }
 
-        if (sortOption === 'asc') {
-            filtered.sort((a, b) => new Date(a.timeCreated) - new Date(b.timeCreated));
-        } else {
-            filtered.sort((a, b) => new Date(b.timeCreated) - new Date(a.timeCreated));
+        if (role !== 'All Roles') {
+            filtered = filtered.filter(user => user.role.toLowerCase() === role.toLowerCase());
         }
 
-        setFilteredRequests(filtered);
+        if (sortOption === 'name') {
+            filtered.sort((a, b) => a.username.localeCompare(b.username));
+        } else if (sortOption === 'role') {
+            filtered.sort((a, b) => a.role.localeCompare(b.role));
+        }
+
+        setFilteredUsers(filtered);
         const startIndex = 0;
-        setDisplayedRequests(filtered.slice(startIndex, startIndex + requestsPerPage));
-        setError(filtered.length === 0 ? 'No upgrade requests found matching the criteria.' : null);
+        setDisplayedUsers(filtered.slice(startIndex, startIndex + usersPerPage));
+        setError(filtered.length === 0 ? 'No users found matching the criteria.' : null);
     };
 
     const handlePageChange = (pageNumber) => {
         if (pageNumber >= 1 && pageNumber <= totalPages) {
             setCurrentPage(pageNumber);
-            setPageInput('');
-            const startIndex = (pageNumber - 1) * requestsPerPage;
-            setDisplayedRequests(filteredRequests.slice(startIndex, startIndex + requestsPerPage));
+            setPageInput(''); // Clear input after navigation
+            const startIndex = (pageNumber - 1) * usersPerPage;
+            setDisplayedUsers(filteredUsers.slice(startIndex, startIndex + usersPerPage));
         }
     };
 
@@ -116,20 +129,23 @@ export default function UpgradeRequest() {
         }
     };
 
-    const handleAcceptRequest = (request) => {
-        const toastId = toast(
+    const handleRoleToggle = (user) => {
+        const currentRole = user.role.toLowerCase();
+        const newRole = currentRole === 'premium' ? 'user' : 'premium';
+
+        toast(
             <div>
-                <p>Are you sure you want to accept the upgrade request for {request.userName}?</p>
+                <p>Are you sure you want to {newRole === 'premium' ? 'upgrade' : 'downgrade'} {user.username} to {newRole}?</p>
                 <div className="flex justify-end space-x-2 mt-2">
                     <button
                         className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-                        onClick={() => performUpdateRequest(request.id, 'Accepted', toastId)}
+                        onClick={() => performRoleToggle(user, newRole)}
                     >
                         Confirm
                     </button>
                     <button
                         className="px-3 py-1 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
-                        onClick={() => toast.dismiss(toastId)}
+                        onClick={() => toast.dismiss()}
                     >
                         Cancel
                     </button>
@@ -143,89 +159,38 @@ export default function UpgradeRequest() {
         );
     };
 
-    const handleDenyRequest = (request) => {
-        const toastId = toast(
-            <div>
-                <p>Are you sure you want to deny the upgrade request for {request.userName}?</p>
-                <div className="flex justify-end space-x-2 mt-2">
-                    <button
-                        className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-                        onClick={() => performUpdateRequest(request.id, 'Denied', toastId)}
-                    >
-                        Confirm
-                    </button>
-                    <button
-                        className="px-3 py-1 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
-                        onClick={() => toast.dismiss(toastId)}
-                    >
-                        Cancel
-                    </button>
-                </div>
-            </div>,
-            {
-                autoClose: false,
-                closeOnClick: false,
-                draggable: false
-            }
-        );
-    };
-
-    const performUpdateRequest = async (requestId, status, toastId) => {
-        const loadingToast = toast.loading(`Processing request...`);
+    const performRoleToggle = async (user, newRole) => {
+        const loadingToast = toast.loading(`Updating role for ${user.username}...`);
         try {
-            // Step 1: Update the upgrade request status
-            const requestResponse = await fetch(`/api/request/upgrade-requests/${requestId}`, {
+            const response = await fetch(`/api/account/user/${user.username}/role`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ status }),
+                body: JSON.stringify({ role: newRole }),
                 credentials: 'include'
             });
 
-            if (!requestResponse.ok) {
-                throw new Error(`Failed to ${status.toLowerCase()} request`);
-            }
-
-            // Update the local state for the request status
-            let updatedRequests = allRequests.map(r =>
-                r.id === requestId ? { ...r, status } : r
-            );
-
-            // Step 2: If status is "Accepted", update the user's role to "premium"
-            if (status === 'Accepted') {
-                const requestToUpdate = updatedRequests.find(r => r.id === requestId);
-                const username = requestToUpdate.userName;
-
-                const roleResponse = await fetch(`/api/account/user/${username}/role`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ role: 'premium' }),
-                    credentials: 'include'
+            if (response.ok) {
+                const updatedUsers = allUsers.map(u =>
+                    u.username === user.username ? { ...u, role: newRole } : u
+                );
+                setAllUsers(updatedUsers);
+                applyFiltersAndSort(searchTerm, selectedRole, sortBy, updatedUsers);
+                toast.update(loadingToast, {
+                    render: `Role updated to ${newRole} successfully`,
+                    type: 'success',
+                    isLoading: false,
+                    autoClose: 2000
                 });
-
-                if (!roleResponse.ok) {
-                    throw new Error('Failed to update user role to premium');
-                }
+            } else {
+                throw new Error('Failed to update role');
             }
-
-            setAllRequests(updatedRequests);
-            applyFiltersAndSort(searchTerm, sortByTime, updatedRequests);
-            toast.dismiss(toastId);
-            toast.update(loadingToast, {
-                render: `Request ${status.toLowerCase()} successfully${status === 'Accepted' ? ' and user role updated to premium' : ''}`,
-                type: 'success',
-                isLoading: false,
-                autoClose: 2000
-            });
         } catch (error) {
-            console.error(`Error ${status.toLowerCase()} request:`, error);
-            setError(`Failed to ${status.toLowerCase()} request. Please try again.`);
-            toast.dismiss(toastId);
+            console.error('Error updating role:', error);
+            setError('Failed to update role. Please try again.');
             toast.update(loadingToast, {
-                render: `Failed to ${status.toLowerCase()} request${status === 'Accepted' ? ' or update user role' : ''}`,
+                render: 'Failed to update role',
                 type: 'error',
                 isLoading: false,
                 autoClose: 3000
@@ -233,7 +198,7 @@ export default function UpgradeRequest() {
         }
     };
 
-    const totalPages = Math.ceil(filteredRequests.length / requestsPerPage);
+    const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
 
     return (
         <div className="max-w-3xl mx-auto p-6 space-y-5">
@@ -249,7 +214,7 @@ export default function UpgradeRequest() {
                 pauseOnHover
                 theme="light"
             />
-            <h1 className="text-2xl font-bold">Upgrade Requests</h1>
+            <h1 className="text-2xl font-bold">User Management</h1>
             <div className="flex gap-4 mb-4">
                 <input
                     type="text"
@@ -259,12 +224,22 @@ export default function UpgradeRequest() {
                     className="w-1/2 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <select
-                    value={sortByTime}
-                    onChange={handleSortChange}
-                    className="w-1/2 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value={selectedRole}
+                    onChange={handleRoleChange}
+                    className="w-1/4 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                    <option value="desc">Sort: Newest First</option>
-                    <option value="asc">Sort: Oldest First</option>
+                    {roles.map(role => (
+                        <option key={role} value={role}>{role === 'All Roles' ? 'All Roles' : role.charAt(0).toUpperCase() + role.slice(1)}</option>
+                    ))}
+                </select>
+                <select
+                    value={sortBy}
+                    onChange={handleSortChange}
+                    className="w-1/4 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                    <option value="default">Sort: Default</option>
+                    <option value="name">Sort: Name (A-Z)</option>
+                    <option value="role">Sort: Role (A-Z)</option>
                 </select>
             </div>
             {error && (
@@ -280,36 +255,28 @@ export default function UpgradeRequest() {
                                 <tr className="bg-gray-50">
                                     <th className="px-4 py-2 border-b text-left text-sm font-medium text-gray-700">Username</th>
                                     <th className="px-4 py-2 border-b text-left text-sm font-medium text-gray-700">Email</th>
-                                    <th className="px-4 py-2 border-b text-left text-sm font-medium text-gray-700">Time Created</th>
-                                    <th className="px-4 py-2 border-b text-left text-sm font-medium text-gray-700">Status</th>
-                                    <th className="px-4 py-2 border-b text-left text-sm font-medium text-gray-700">Actions</th>
+                                    <th className="px-4 py-2 border-b text-left text-sm font-medium text-gray-700">Role</th>
+                                    <th className="px-4 py-2 border-b text-left text-sm font-medium text-gray-700">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {displayedRequests.map(request => (
-                                    <tr key={request.id} className="hover:bg-gray-50">
-                                        <td className="px-4 py-2 border-b text-sm text-gray-900">{request.userName}</td>
-                                        <td className="px-4 py-2 border-b text-sm text-gray-900">{request.userEmail}</td>
-                                        <td className="px-4 py-2 border-b text-sm text-gray-900">
-                                            {new Date(request.timeCreated).toLocaleString()}
-                                        </td>
-                                        <td className="px-4 py-2 border-b text-sm text-gray-900">{request.status}</td>
+                                {displayedUsers.map(user => (
+                                    <tr key={user.id} className="hover:bg-gray-50">
+                                        <td className="px-4 py-2 border-b text-sm text-gray-900">{user.username}</td>
+                                        <td className="px-4 py-2 border-b text-sm text-gray-900">{user.email}</td>
+                                        <td className="px-4 py-2 border-b text-sm text-gray-900">{user.role}</td>
                                         <td className="px-4 py-2 border-b text-sm">
-                                            {request.status === 'Pending' ? (
-                                                <div className="flex gap-2">
-                                                    <button
-                                                        onClick={() => handleAcceptRequest(request)}
-                                                        className="px-4 py-1 rounded-md text-white text-sm font-medium bg-green-500 hover:bg-green-600"
-                                                    >
-                                                        Accept
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleDenyRequest(request)}
-                                                        className="px-4 py-1 rounded-md text-white text-sm font-medium bg-red-500 hover:bg-red-600"
-                                                    >
-                                                        Deny
-                                                    </button>
-                                                </div>
+                                            {user.role.toLowerCase() !== 'admin' ? (
+                                                <button
+                                                    onClick={() => handleRoleToggle(user)}
+                                                    className={`px-4 py-1 rounded-md text-white text-sm font-medium ${
+                                                        user.role.toLowerCase() === 'premium' 
+                                                        ? 'bg-red-500 hover:bg-red-600' 
+                                                        : 'bg-green-500 hover:bg-green-600'
+                                                    }`}
+                                                >
+                                                    {user.role.toLowerCase() === 'premium' ? 'Downgrade' : 'Upgrade'}
+                                                </button>
                                             ) : (
                                                 <span className="text-gray-500">-</span>
                                             )}
@@ -319,7 +286,7 @@ export default function UpgradeRequest() {
                             </tbody>
                         </table>
                     </div>
-                    {totalPages > 1 && (
+                        {totalPages > 1 && (
                         <div className="flex justify-center items-center space-x-2 mt-4">
                             <button
                                 onClick={() => handlePageChange(currentPage - 1)}
