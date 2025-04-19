@@ -37,6 +37,7 @@ import PhoneParserAndFormatter from '../pages/Data/PhoneParserAndFormatter';
 import IbanValidatorAndParser from '../pages/Data/IBANValidatorAndParser';
 import UserManagement from "../pages/Admin/UserManagement";
 import ToolManagement from '../pages/Admin/ToolManagement';
+import UpgradeRequest from '../pages/Admin/UpgradeRequest';
 
 export default function AppRoutes() {
   return (
@@ -110,6 +111,7 @@ export default function AppRoutes() {
                 {/* Add more admin routes here, e.g., <Route path="settings" element={<AdminSettings />} /> */}
                 <Route path="/add-tool" element={<AddTool />} />
                 <Route path="/tool-management" element={<ToolManagement />} />
+                <Route path="/upgrade-request" element={<UpgradeRequest />} />
               </Routes>
             </AdminRoute>
           }

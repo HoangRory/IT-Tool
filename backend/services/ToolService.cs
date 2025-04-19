@@ -21,6 +21,15 @@ namespace Backend.Models // Adjust namespace to match your project
                 .ToListAsync();
         }
 
+        public async Task<List<Tool>> GetEnabledToolsAsync()
+        {
+            return await _context.Tools
+                .AsNoTracking()
+                .Include(t => t.Category)
+                .Where(t => t.IsEnabled == true)
+                .ToListAsync();
+        }
+
         // Fetches a tool by ID asynchronously
         public async Task<Tool?> GetToolByIdAsync(int id)
         {

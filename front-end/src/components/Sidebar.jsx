@@ -1,6 +1,6 @@
 import { useState, useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { ChevronDown, ChevronRight, Heart, Users, Plus, Wrench } from "lucide-react";
+import { ChevronDown, ChevronRight, Heart, Users, Plus, Wrench, UserCheck } from "lucide-react";
 import { ToolsContext } from "../context/ToolsContext";
 import { AuthContext } from "../context/AuthContext";
 
@@ -79,6 +79,17 @@ export default function Sidebar() {
                 >
                   <Wrench size={18} />
                   <span>Tool Management</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/admin/upgrade-request"
+                  className={`flex items-center gap-2 block p-2 rounded ${
+                    location.pathname === '/admin/upgrade-requests' ? "bg-blue-500" : "hover:bg-green-600"
+                  }`}
+                >
+                  <UserCheck size={18} />
+                  <span>Upgrade Requests</span>
                 </Link>
               </li>
               <li>

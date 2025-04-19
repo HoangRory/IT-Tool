@@ -20,6 +20,8 @@ public partial class DefaultdbContext : DbContext
 
     public virtual DbSet<Tool> Tools { get; set; }
 
+    public virtual DbSet<UpgradeRequest> UpgradeRequests { get; set; }
+
     public virtual DbSet<User> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -74,6 +76,30 @@ public partial class DefaultdbContext : DbContext
             entity.HasOne(d => d.Category).WithMany(p => p.Tools)
                 .HasForeignKey(d => d.CategoryId)
                 .HasConstraintName("Tools_ibfk_1");
+        });
+
+        modelBuilder.Entity<UpgradeRequest>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("Upgrade_Requests");
+
+            entity.HasIndex(e => e.UserId, "FK_Upgrade_Requests_Users");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Status)
+                .HasDefaultValueSql("'Pending'")
+                .HasColumnType("enum('Pending','Accepted','Denied')")
+                .HasColumnName("status");
+            entity.Property(e => e.TimeCreated)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("datetime")
+                .HasColumnName("time_created");
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+
+            entity.HasOne(d => d.User).WithMany(p => p.UpgradeRequests)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("FK_Upgrade_Requests_Users");
         });
 
         modelBuilder.Entity<User>(entity =>

@@ -6,7 +6,7 @@ export default function UpgradeRequest() {
     const [allRequests, setAllRequests] = useState([]);
     const [displayedRequests, setDisplayedRequests] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [sortByTime, setSortByTime] = useState('desc');
+    const [sortByTime, setSortByTime] = useState('desc'); // 'desc' for newest, 'asc' for oldest
     const [currentPage, setCurrentPage] = useState(1);
     const [pageInput, setPageInput] = useState('');
     const [filteredRequests, setFilteredRequests] = useState([]);
@@ -21,6 +21,7 @@ export default function UpgradeRequest() {
     const fetchRequests = async () => {
         setLoading(true);
         setError(null);
+        
         const loadingToast = toast.loading('Loading upgrade requests...');
         try {
             const response = await fetch('/api/request/upgrade-requests', {
@@ -173,8 +174,7 @@ export default function UpgradeRequest() {
     const performUpdateRequest = async (requestId, status, toastId) => {
         const loadingToast = toast.loading(`Processing request...`);
         try {
-            // Step 1: Update the upgrade request status
-            const requestResponse = await fetch(`/api/request/upgrade-requests/${requestId}`, {
+            const response = await fetch(`/api/request/upgrade-requests/${requestId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -183,49 +183,28 @@ export default function UpgradeRequest() {
                 credentials: 'include'
             });
 
-            if (!requestResponse.ok) {
+            if (response.ok) {
+                const updatedRequests = allRequests.map(r =>
+                    r.id === requestId ? { ...r, status } : r
+                );
+                setAllRequests(updatedRequests);
+                applyFiltersAndSort(searchTerm, sortByTime, updatedRequests);
+                toast.dismiss(toastId);
+                toast.update(loadingToast, {
+                    render: `Request ${status.toLowerCase()} successfully`,
+                    type: 'success',
+                    isLoading: false,
+                    autoClose: 2000
+                });
+            } else {
                 throw new Error(`Failed to ${status.toLowerCase()} request`);
             }
-
-            // Update the local state for the request status
-            let updatedRequests = allRequests.map(r =>
-                r.id === requestId ? { ...r, status } : r
-            );
-
-            // Step 2: If status is "Accepted", update the user's role to "premium"
-            if (status === 'Accepted') {
-                const requestToUpdate = updatedRequests.find(r => r.id === requestId);
-                const username = requestToUpdate.userName;
-
-                const roleResponse = await fetch(`/api/account/user/${username}/role`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ role: 'premium' }),
-                    credentials: 'include'
-                });
-
-                if (!roleResponse.ok) {
-                    throw new Error('Failed to update user role to premium');
-                }
-            }
-
-            setAllRequests(updatedRequests);
-            applyFiltersAndSort(searchTerm, sortByTime, updatedRequests);
-            toast.dismiss(toastId);
-            toast.update(loadingToast, {
-                render: `Request ${status.toLowerCase()} successfully${status === 'Accepted' ? ' and user role updated to premium' : ''}`,
-                type: 'success',
-                isLoading: false,
-                autoClose: 2000
-            });
         } catch (error) {
             console.error(`Error ${status.toLowerCase()} request:`, error);
             setError(`Failed to ${status.toLowerCase()} request. Please try again.`);
             toast.dismiss(toastId);
             toast.update(loadingToast, {
-                render: `Failed to ${status.toLowerCase()} request${status === 'Accepted' ? ' or update user role' : ''}`,
+                render: `Failed to ${status.toLowerCase()} request`,
                 type: 'error',
                 isLoading: false,
                 autoClose: 3000
@@ -298,7 +277,10 @@ export default function UpgradeRequest() {
                                             {request.status === 'Pending' ? (
                                                 <div className="flex gap-2">
                                                     <button
-                                                        onClick={() => handleAcceptRequest(request)}
+                                                        onClick={() => {
+                                                            console.log(request);
+                                                            handleAcceptRequest(request);
+                                                        }}
                                                         className="px-4 py-1 rounded-md text-white text-sm font-medium bg-green-500 hover:bg-green-600"
                                                     >
                                                         Accept

@@ -15,5 +15,7 @@ public partial class User
 
     public string? Role { get; set; }
 
+    public virtual ICollection<UpgradeRequest> UpgradeRequests { get; set; } = new List<UpgradeRequest>();
+
     public virtual ICollection<Tool> Tools { get; set; } = new List<Tool>();
 }

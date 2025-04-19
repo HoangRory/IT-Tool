@@ -27,6 +27,7 @@ builder.Services.AddDbContext<DefaultdbContext>(options =>
 builder.Services.AddScoped<ToolService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<AccountService>();
+builder.Services.AddScoped<RequestService>();
 
 // Configure CORS for React frontend
 builder.Services.AddCors(options =>

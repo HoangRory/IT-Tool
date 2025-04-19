@@ -11,38 +11,41 @@ export const ToolsProvider = ({ children }) => {
   const [favoriteToolIds, setFavoriteToolIds] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const loadTools = async () => {
+  const loadTools = async () => {
+    try {
+      setIsLoading(true);
+      const fetchedTools = await fetchTools();
+      console.log('Tools fetched:', fetchedTools);
+      setTools(fetchedTools);
+    } catch (err) {
+      console.error('Failed to load tools:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loadFavorites = async () => {
+    if (user) {
       try {
-        setIsLoading(true);
-        const fetchedTools = await fetchTools();
-        console.log('Tools fetched:', fetchedTools);
-        setTools(fetchedTools);
+        const response = await axios.get('http://localhost:5074/api/tools/favorites', {
+          withCredentials: true,
+        });
+        console.log('Favorites fetched:', response.data);
+        setFavoriteToolIds(response.data.map(tool => tool.id));
       } catch (err) {
-        console.error('Failed to load tools:', err);
-      } finally {
-        setIsLoading(false);
+        console.error('Failed to load favorites:', err);
       }
-    };
+    } else {
+      setFavoriteToolIds([]); // Clear favorites for anonymous users
+    }
+  };
 
-    const loadFavorites = async () => {
-      if (user) {
-        try {
-          const response = await axios.get('http://localhost:5074/api/tools/favorites', {
-            withCredentials: true,
-          });
-          console.log('Favorites fetched:', response.data);
-          setFavoriteToolIds(response.data.map(tool => tool.id));
-        } catch (err) {
-          console.error('Failed to load favorites:', err);
-        }
-      } else {
-        setFavoriteToolIds([]); // Clear favorites for anonymous users
-      }
-    };
+  const refreshTools = async () => {
+    await Promise.all([loadTools(), loadFavorites()]);
+  };
 
-    loadTools();
-    loadFavorites();
+  useEffect(() => {
+    refreshTools();
   }, [user]);
 
   const toggleFavorite = async (toolId, currentIsFavorite) => {
@@ -78,7 +81,7 @@ export const ToolsProvider = ({ children }) => {
   };
 
   return (
-    <ToolsContext.Provider value={{ tools, favoriteToolIds, toggleFavorite, isLoading }}>
+    <ToolsContext.Provider value={{ tools, favoriteToolIds, toggleFavorite, isLoading, refreshTools }}>
       {children}
     </ToolsContext.Provider>
   );

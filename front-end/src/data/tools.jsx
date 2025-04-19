@@ -96,7 +96,7 @@ const staticTools = [
 // Function to fetch and merge tools from backend
 export const fetchTools = async () => {
   try {
-    const response = await axios.get("http://localhost:5074/api/tools/list");
+    const response = await axios.get("http://localhost:5074/api/tools/enabled");
     const backendTools = response.data;
 
     // Group backend tools by category

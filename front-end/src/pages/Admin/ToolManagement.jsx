@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { ToolsContext } from '../../context/ToolsContext';
 
 export default function ToolManagement() {
+    const { refreshTools } = useContext(ToolsContext);
     const [allTools, setAllTools] = useState([]);
     const [displayedTools, setDisplayedTools] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
@@ -132,19 +134,19 @@ export default function ToolManagement() {
 
     const handleTogglePremium = (tool) => {
         const newStatus = !tool.isPremium;
-        toast(
+        const toastId = toast(
             <div>
                 <p>Are you sure you want to {newStatus ? 'set' : 'remove'} {tool.name} as {newStatus ? 'Premium' : 'non-Premium'}?</p>
                 <div className="flex justify-end space-x-2 mt-2">
                     <button
                         className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-                        onClick={() => performTogglePremium(tool, newStatus)}
+                        onClick={() => performTogglePremium(tool, newStatus, toastId)}
                     >
                         Confirm
                     </button>
                     <button
                         className="px-3 py-1 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
-                        onClick={() => toast.dismiss()}
+                        onClick={() => toast.dismiss(toastId)}
                     >
                         Cancel
                     </button>
@@ -158,10 +160,10 @@ export default function ToolManagement() {
         );
     };
 
-    const performTogglePremium = async (tool, newStatus) => {
+    const performTogglePremium = async (tool, newStatus, toastId) => {
         const loadingToast = toast.loading(`Updating premium status for ${tool.name}...`);
         try {
-            const response = await fetch(`/api/tool/${tool.id}/premium`, {
+            const response = await fetch(`/api/tools/${tool.id}/premium`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -176,6 +178,8 @@ export default function ToolManagement() {
                 );
                 setAllTools(updatedTools);
                 applyFiltersAndSort(searchTerm, selectedCategory, sortBy, updatedTools);
+                await refreshTools(); // Refresh tools across the app
+                toast.dismiss(toastId);
                 toast.update(loadingToast, {
                     render: `Premium status updated to ${newStatus ? 'Premium' : 'non-Premium'} successfully`,
                     type: 'success',
@@ -188,6 +192,7 @@ export default function ToolManagement() {
         } catch (error) {
             console.error('Error updating premium status:', error);
             setError('Failed to update premium status. Please try again.');
+            toast.dismiss(toastId);
             toast.update(loadingToast, {
                 render: 'Failed to update premium status',
                 type: 'error',
@@ -199,19 +204,19 @@ export default function ToolManagement() {
 
     const handleToggleEnabled = (tool) => {
         const newStatus = !tool.isEnabled;
-        toast(
+        const toastId = toast(
             <div>
                 <p>Are you sure you want to {newStatus ? 'enable' : 'disable'} {tool.name}?</p>
                 <div className="flex justify-end space-x-2 mt-2">
                     <button
                         className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-                        onClick={() => performToggleEnabled(tool, newStatus)}
+                        onClick={() => performToggleEnabled(tool, newStatus, toastId)}
                     >
                         Confirm
                     </button>
                     <button
                         className="px-3 py-1 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
-                        onClick={() => toast.dismiss()}
+                        onClick={() => toast.dismiss(toastId)}
                     >
                         Cancel
                     </button>
@@ -225,10 +230,10 @@ export default function ToolManagement() {
         );
     };
 
-    const performToggleEnabled = async (tool, newStatus) => {
+    const performToggleEnabled = async (tool, newStatus, toastId) => {
         const loadingToast = toast.loading(`Updating enabled status for ${tool.name}...`);
         try {
-            const response = await fetch(`/api/tool/${tool.id}/enabled`, {
+            const response = await fetch(`/api/tools/${tool.id}/enabled`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -243,6 +248,8 @@ export default function ToolManagement() {
                 );
                 setAllTools(updatedTools);
                 applyFiltersAndSort(searchTerm, selectedCategory, sortBy, updatedTools);
+                await refreshTools(); // Refresh tools across the app
+                toast.dismiss(toastId);
                 toast.update(loadingToast, {
                     render: `Enabled status updated to ${newStatus ? 'Enabled' : 'Disabled'} successfully`,
                     type: 'success',
@@ -255,6 +262,7 @@ export default function ToolManagement() {
         } catch (error) {
             console.error('Error updating enabled status:', error);
             setError('Failed to update enabled status. Please try again.');
+            toast.dismiss(toastId);
             toast.update(loadingToast, {
                 render: 'Failed to update enabled status',
                 type: 'error',

@@ -20,9 +20,8 @@ namespace Backend.Controllers
             _accountService = accountService ?? throw new ArgumentNullException(nameof(accountService));
         }
 
-        [HttpGet("/")]
-        [HttpGet("")]
         [HttpGet("list")]
+        [Authorize(Roles="admin")]
         public async Task<IActionResult> GetAllTools()
         {
             try
@@ -36,7 +35,8 @@ namespace Backend.Controllers
                     t.Path,
                     Category = t.Category != null ? t.Category.Name : "Uncategorized", // Use Category.Name or fallback
                     t.Description,
-                    t.IsPremium
+                    t.IsPremium,
+                    t.IsEnabled
                 });
 
                 Console.WriteLine("Fetched Tools:");
@@ -51,6 +51,41 @@ namespace Backend.Controllers
             {
                 Console.WriteLine($"Error fetching tools: {ex.Message}");
                 return StatusCode(500, new { error = "An error occurred while fetching tools." });
+            }
+        }
+
+        [HttpGet("/")]
+        [HttpGet("")]
+        [HttpGet("enabled")]
+        public async Task<IActionResult> GetEnabledTools()
+        {
+            try
+            {
+                var tools = await _toolService.GetEnabledToolsAsync();
+
+                var result = tools.Select(t => new
+                {
+                    t.Id,
+                    t.Name,
+                    t.Path,
+                    Category = t.Category != null ? t.Category.Name : "Uncategorized",
+                    t.Description,
+                    t.IsPremium,
+                    t.IsEnabled
+                });
+
+                Console.WriteLine("Fetched Tools:");
+                foreach (var tool in result)
+                {
+                    Console.WriteLine($"Name: {tool.Name}, Path: {tool.Path}, Category: {tool.Category}, Premium: {(tool.IsPremium ?? false ? "Yes" : "No")}");
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching enabled tools: {ex.Message}");
+                return StatusCode(500, new { error = "An error occurred while fetching enabled tools." });
             }
         }
 
@@ -166,7 +201,7 @@ namespace Backend.Controllers
         }
 
         [HttpPut("{toolId}/premium")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> UpdateToolPremiumStatus(int toolId, [FromBody] UpdateToolStatusModel model)
         {
             try
@@ -204,6 +239,7 @@ namespace Backend.Controllers
                 return StatusCode(500, new { error = "An error occurred while updating tool enabled status." });
             }
         }
+        
     }
 
     public class FavoriteModel
