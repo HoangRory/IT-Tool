@@ -19,6 +19,7 @@ export function useDynamicToolLoader(toolName, exportName) {
                 }
                 const res = await fetch(`http://localhost:5074/api/tools/${toolName}`, {
                     method: "POST",
+                    credentials: 'include',
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ returnType: "js" })
                 });

@@ -5,9 +5,23 @@ import { useNavigate } from 'react-router-dom';
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
+  // Load user từ localStorage nếu có
+  const [user, setUser] = useState(() => {
+    const storedUser = localStorage.getItem('user');
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
+  const [loading, setLoading] = useState(true);
+
+  const saveUser = (data) => {
+    if (data) {
+      localStorage.setItem('user', JSON.stringify(data));
+    } else {
+      localStorage.removeItem('user');
+    }
+    setUser(data);
+  };
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -15,10 +29,15 @@ export const AuthProvider = ({ children }) => {
         const response = await axios.get('http://localhost:5074/api/account/check', {
           withCredentials: true,
         });
-        console.log(response.data.role);
-        setUser({ username: response.data.username, role: response.data.role, isPremium: response.data.role === 'premium' || response.data.role === 'admin' });
+
+        const userData = {
+          username: response.data.username,
+          role: response.data.role,
+          isPremium: response.data.role === 'premium' || response.data.role === 'admin',
+        };
+        saveUser(userData);
       } catch (error) {
-        setUser(null);
+        saveUser(null);
       } finally {
         setLoading(false);
       }
@@ -33,16 +52,21 @@ export const AuthProvider = ({ children }) => {
         { username, password },
         { withCredentials: true }
       );
-      const userData = { username: response.data.username, role: response.data.role };
-      setUser(userData);
-      // Navigate based on role
-      console.log("Role:", userData.role);
+
+      const userData = {
+        username: response.data.username,
+        role: response.data.role,
+        isPremium: response.data.role === 'premium' || response.data.role === 'admin',
+      };
+      saveUser(userData);
+
       const targetPath = userData.role === 'admin' ? '/admin' : '/';
-      console.log("Navigating to:", targetPath);
+      console.log('Navigating to:', targetPath);
       navigate(targetPath);
+
       return { success: true, message: response.data.message };
     } catch (error) {
-      setUser(null);
+      saveUser(null);
       return { success: false, message: error.response?.data?.message || 'Login failed' };
     }
   };
@@ -50,7 +74,7 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       await axios.post('http://localhost:5074/api/account/logout', {}, { withCredentials: true });
-      setUser(null);
+      saveUser(null);
       navigate('/');
     } catch (error) {
       console.error('Logout failed:', error);

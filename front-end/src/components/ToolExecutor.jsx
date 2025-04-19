@@ -34,10 +34,10 @@ export default function ToolExecutor({ toolPath, initialInput, schemaInput = [],
   const handleRun = async () => {
     if (runTool) {
       try {
-        console.log("Running tool with data:", formData);
+        // console.log("Running tool with data:", formData);
 
         const result = await runTool(formData);
-        console.log("Output:", typeof (result), result);
+        // console.log("Output:", typeof (result), result);
         setOutput(result);
       } catch (error) {
         setOutput({ error: error.message });

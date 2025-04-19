@@ -5,9 +5,11 @@ import { useContext } from 'react';
 import { ToolsContext } from '../../context/ToolsContext';
 import { useState } from 'react';
 import PremiumRequiredModal from './../PremiumRequiredModal';
+import { AuthContext } from '../../context/AuthContext';
 
 export default function ToolCard({ icon, title, description, path, id, isFavorite, isPremium = false }) {
-  const { toggleFavorite, user } = useContext(ToolsContext);
+  const { toggleFavorite } = useContext(ToolsContext);
+  const { user } = useContext(AuthContext);
   const [showModal, setShowModal] = useState(false);
   const handleClick = (e) => {
     if (isPremium && !user?.isPremium) {
