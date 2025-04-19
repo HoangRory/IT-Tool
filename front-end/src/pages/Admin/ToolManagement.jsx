@@ -277,7 +277,7 @@ export default function ToolManagement() {
     return (
         <div className="max-w-3xl mx-auto p-6 space-y-5">
             <ToastContainer
-                position="top-right"
+                position="top-center"
                 autoClose={3000}
                 hideProgressBar={false}
                 newestOnTop

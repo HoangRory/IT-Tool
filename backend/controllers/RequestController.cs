@@ -76,9 +76,65 @@ namespace Backend.Controllers
                 return StatusCode(500, new { error = "An error occurred while updating the upgrade request." });
             }
         }
+
+        [HttpPost("upgrade-requests")]
+        [Authorize]
+        public async Task<IActionResult> AddPendingUpgradeRequest()
+        {
+            try
+            {
+                var username = User.Identity.Name;
+                if (string.IsNullOrEmpty(username))
+                {
+                    return Unauthorized(new { Message = "User not authenticated" });
+                }
+
+                var success = await _requestService.AddPendingUpgradeRequestAsync(username);
+                if (!success)
+                {
+                    return BadRequest(new { Message = "Failed to create request. User may not exist or already has a pending request." });
+                }
+
+                return Ok(new { Message = "Pending upgrade request created successfully" });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error creating upgrade request: {ex.Message}");
+                return StatusCode(500, new { error = "An error occurred while creating the upgrade request." });
+            }
+        }
+        
+        [HttpGet("upgrade-requests/status")]
+        [Authorize]
+        public async Task<IActionResult> GetUserRequestStatus()
+        {
+            try
+            {
+                var username = User.Identity.Name; // Get username from authenticated user
+                if (string.IsNullOrEmpty(username))
+                {
+                    return Unauthorized(new { Message = "User not authenticated" });
+                }
+
+                var status = await _requestService.GetUserRequestStatusAsync(username);
+                return Ok(new { status });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching user request status: {ex.Message}");
+                return StatusCode(500, new { error = "An error occurred while fetching request status." });
+            }
+        }
     }
+
+    
     public class UpdateRequestModel
     {
         public string Status { get; set; }
+    }
+
+    public class AddRequestModel
+    {
+        public int UserId { get; set; }
     }
 }

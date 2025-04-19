@@ -6,6 +6,7 @@ export default function UpgradeRequest() {
     const [allRequests, setAllRequests] = useState([]);
     const [displayedRequests, setDisplayedRequests] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
+    const [statusFilter, setStatusFilter] = useState('all'); // New state for status filter
     const [sortByTime, setSortByTime] = useState('desc'); // 'desc' for newest, 'asc' for oldest
     const [currentPage, setCurrentPage] = useState(1);
     const [pageInput, setPageInput] = useState('');
@@ -32,7 +33,7 @@ export default function UpgradeRequest() {
             }
             const data = await response.json();
             setAllRequests(data);
-            applyFiltersAndSort('', 'desc', data);
+            applyFiltersAndSort('', 'all', 'desc', data);
             toast.update(loadingToast, {
                 render: 'Upgrade requests loaded successfully',
                 type: 'success',
@@ -59,23 +60,34 @@ export default function UpgradeRequest() {
         const term = e.target.value;
         setSearchTerm(term);
         setCurrentPage(1);
-        applyFiltersAndSort(term, sortByTime, allRequests);
+        applyFiltersAndSort(term, statusFilter, sortByTime, allRequests);
+    };
+
+    const handleStatusFilterChange = (e) => {
+        const status = e.target.value;
+        setStatusFilter(status);
+        setCurrentPage(1);
+        applyFiltersAndSort(searchTerm, status, sortByTime, allRequests);
     };
 
     const handleSortChange = (e) => {
         const sortOption = e.target.value;
         setSortByTime(sortOption);
         setCurrentPage(1);
-        applyFiltersAndSort(searchTerm, sortOption, allRequests);
+        applyFiltersAndSort(searchTerm, statusFilter, sortOption, allRequests);
     };
 
-    const applyFiltersAndSort = (term, sortOption, requestsList) => {
+    const applyFiltersAndSort = (term, status, sortOption, requestsList) => {
         let filtered = [...requestsList];
 
         if (term.trim() !== '') {
             filtered = filtered.filter(request =>
                 request.userName.toLowerCase().includes(term.toLowerCase())
             );
+        }
+
+        if (status !== 'all') {
+            filtered = filtered.filter(request => request.status.toLowerCase() === status.toLowerCase());
         }
 
         if (sortOption === 'asc') {
@@ -188,7 +200,7 @@ export default function UpgradeRequest() {
                     r.id === requestId ? { ...r, status } : r
                 );
                 setAllRequests(updatedRequests);
-                applyFiltersAndSort(searchTerm, sortByTime, updatedRequests);
+                applyFiltersAndSort(searchTerm, statusFilter, sortByTime, updatedRequests);
                 toast.dismiss(toastId);
                 toast.update(loadingToast, {
                     render: `Request ${status.toLowerCase()} successfully`,
@@ -217,7 +229,7 @@ export default function UpgradeRequest() {
     return (
         <div className="max-w-3xl mx-auto p-6 space-y-5">
             <ToastContainer
-                position="top-right"
+                position="top-center"
                 autoClose={3000}
                 hideProgressBar={false}
                 newestOnTop
@@ -235,12 +247,22 @@ export default function UpgradeRequest() {
                     value={searchTerm}
                     onChange={handleSearch}
                     placeholder="Search by username..."
-                    className="w-1/2 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-1/3 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
+                <select
+                    value={statusFilter}
+                    onChange={handleStatusFilterChange}
+                    className="w-1/3 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                    <option value="all">Filter: All Statuses</option>
+                    <option value="pending">Filter: Pending</option>
+                    <option value="accepted">Filter: Accepted</option>
+                    <option value="denied">Filter: Denied</option>
+                </select>
                 <select
                     value={sortByTime}
                     onChange={handleSortChange}
-                    className="w-1/2 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-1/3 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                     <option value="desc">Sort: Newest First</option>
                     <option value="asc">Sort: Oldest First</option>

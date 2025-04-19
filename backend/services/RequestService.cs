@@ -50,5 +50,77 @@ namespace Backend.Models
                 return false;
             }
         }
+
+         public async Task<bool> AddPendingUpgradeRequestAsync(string username)
+        {
+            try
+            {
+                // Check if user exists
+                var user = await _context.Users
+                    .FirstOrDefaultAsync(u => u.Username == username);
+
+                if (user == null)
+                {
+                    return false; // User not found
+                }
+
+                // Check for existing pending request
+                var existingPendingRequest = await _context.UpgradeRequests
+                    .AnyAsync(r => r.UserId == user.Id && r.Status == "Pending");
+
+                if (existingPendingRequest)
+                {
+                    return false; // User already has a pending request
+                }
+
+                // Create new pending request
+                var newRequest = new UpgradeRequest
+                {
+                    UserId = user.Id,
+                    TimeCreated = DateTime.UtcNow,
+                    Status = "Pending"
+                };
+
+                _context.UpgradeRequests.Add(newRequest);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public async Task<string> GetUserRequestStatusAsync(string username)
+        {
+            try
+            {
+                // Find user by username
+                var user = await _context.Users
+                    .FirstOrDefaultAsync(u => u.Username == username);
+
+                if (user == null)
+                {
+                    return "none"; // User not found
+                }
+
+                // Check for pending or denied requests
+                var request = await _context.UpgradeRequests
+                    .Where(r => r.UserId == user.Id && (r.Status == "Pending" || r.Status == "Denied"))
+                    .OrderByDescending(r => r.TimeCreated) // Get the most recent request
+                    .FirstOrDefaultAsync();
+
+                if (request == null)
+                {
+                    return "none"; // No pending or denied requests
+                }
+
+                return request.Status.ToLower(); // Return "pending" or "denied"
+            }
+            catch (Exception)
+            {
+                return "none";
+            }
+        }
     }
 }

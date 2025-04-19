@@ -7,7 +7,6 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
-  // Load user từ localStorage nếu có
   const [user, setUser] = useState(() => {
     const storedUser = localStorage.getItem('user');
     return storedUser ? JSON.parse(storedUser) : null;
@@ -26,7 +25,13 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        // Check authentication
         const response = await axios.get('http://localhost:5074/api/account/check', {
+          withCredentials: true,
+        });
+
+        // Fetch request status
+        const statusResponse = await axios.get('http://localhost:5074/api/request/upgrade-requests/status', {
           withCredentials: true,
         });
 
@@ -34,6 +39,7 @@ export const AuthProvider = ({ children }) => {
           username: response.data.username,
           role: response.data.role,
           isPremium: response.data.role === 'premium' || response.data.role === 'admin',
+          requestStatus: statusResponse.data.status // "pending", "denied", or "none"
         };
         saveUser(userData);
       } catch (error) {
@@ -53,10 +59,16 @@ export const AuthProvider = ({ children }) => {
         { withCredentials: true }
       );
 
+      // Fetch request status after login
+      const statusResponse = await axios.get('http://localhost:5074/api/request/upgrade-requests/status', {
+        withCredentials: true,
+      });
+
       const userData = {
         username: response.data.username,
         role: response.data.role,
         isPremium: response.data.role === 'premium' || response.data.role === 'admin',
+        requestStatus: statusResponse.data.status
       };
       saveUser(userData);
 
@@ -81,8 +93,15 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const updateRequestStatus = (status) => {
+    if (user) {
+      const updatedUser = { ...user, requestStatus: status };
+      saveUser(updatedUser);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, logout, loading, updateRequestStatus }}>
       {children}
     </AuthContext.Provider>
   );
