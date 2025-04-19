@@ -1,4 +1,4 @@
-import React, { useState,useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -9,12 +9,12 @@ const Login = () => {
   const { login, user } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  // Redirect authenticated users away from login page
-  useEffect(() => {
-    if (user) {
-      navigate('/');
-    }
-  }, [user, navigate]);
+    // Redirect authenticated users away from login page
+    useEffect(() => {
+        if (user) {
+            navigate('/');
+        }
+        }, [user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

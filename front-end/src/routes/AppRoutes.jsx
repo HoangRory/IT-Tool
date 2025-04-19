@@ -32,6 +32,9 @@ import MacAddressLookup from "../pages/Network/MacAddressLookup";
 import IPv4AddressConverter from '../pages/Network/IPv4AddressConverter';
 import TemperatureConverter from '../pages/Measurement/TemperatureConverter';
 import Chronometer from '../pages/Measurement/Chronometer';
+import BenchmarkBuilder from '../pages/Measurement/BenchmarkBuilder';
+import PhoneParserAndFormatter from '../pages/Data/PhoneParserAndFormatter';
+import IbanValidatorAndParser from '../pages/Data/IBANValidatorAndParser';
 import AdminDashboard from "../pages/Admin/AdminDashboard";
 
 export default function AppRoutes() {
@@ -90,6 +93,11 @@ export default function AppRoutes() {
         {/* tool measurement */}
         <Route path="/temperature-converter" element={<TemperatureConverter />} /> {/* Add this route */}
         <Route path="/chronometer" element={<Chronometer />} /> {/* Add this route */}
+        <Route path="/benchmark-builder" element={<BenchmarkBuilder />} /> {/* Add this route */}
+
+        {/* tool data */}
+        <Route path="/phone-parser-and-formatter" element={<PhoneParserAndFormatter />} /> {/* Add this route */}
+        <Route path="/iban-validator-and-parser" element={<IbanValidatorAndParser />} /> {/* Add this route */}
 
         {/* Protect all /admin/* routes */}
         <Route
