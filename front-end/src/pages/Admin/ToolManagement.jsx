@@ -42,7 +42,7 @@ export default function ToolManagement() {
                 render: 'Tools loaded successfully',
                 type: 'success',
                 isLoading: false,
-                autoClose: 2000
+                autoClose: 500
             });
         } catch (error) {
             console.error('Error fetching tools:', error);
@@ -55,7 +55,7 @@ export default function ToolManagement() {
                 render: 'Failed to load tools',
                 type: 'error',
                 isLoading: false,
-                autoClose: 3000
+                autoClose: 1000
             });
         }
         setLoading(false);
@@ -125,7 +125,7 @@ export default function ToolManagement() {
                 handlePageChange(pageNumber);
             } else {
                 toast.error(`Please enter a valid page number between 1 and ${totalPages}`, {
-                    autoClose: 3000
+                    autoClose: 1000
                 });
                 setPageInput('');
             }
@@ -184,7 +184,7 @@ export default function ToolManagement() {
                     render: `Premium status updated to ${newStatus ? 'Premium' : 'non-Premium'} successfully`,
                     type: 'success',
                     isLoading: false,
-                    autoClose: 2000
+                    autoClose: 500
                 });
             } else {
                 throw new Error('Failed to update premium status');
@@ -197,7 +197,7 @@ export default function ToolManagement() {
                 render: 'Failed to update premium status',
                 type: 'error',
                 isLoading: false,
-                autoClose: 3000
+                autoClose: 1000
             });
         }
     };
@@ -254,7 +254,7 @@ export default function ToolManagement() {
                     render: `Enabled status updated to ${newStatus ? 'Enabled' : 'Disabled'} successfully`,
                     type: 'success',
                     isLoading: false,
-                    autoClose: 2000
+                    autoClose: 500
                 });
             } else {
                 throw new Error('Failed to update enabled status');
@@ -267,7 +267,7 @@ export default function ToolManagement() {
                 render: 'Failed to update enabled status',
                 type: 'error',
                 isLoading: false,
-                autoClose: 3000
+                autoClose: 1000
             });
         }
     };
@@ -278,7 +278,7 @@ export default function ToolManagement() {
         <div className="max-w-3xl mx-auto p-6 space-y-5">
             <ToastContainer
                 position="top-center"
-                autoClose={3000}
+                autoClose={2000}
                 hideProgressBar={false}
                 newestOnTop
                 closeOnClick

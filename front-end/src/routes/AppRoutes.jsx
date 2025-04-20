@@ -42,8 +42,14 @@ import UpgradeRequest from '../pages/Admin/UpgradeRequest';
 export default function AppRoutes() {
   return (
     <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<Signup />} />
+      <Route
+        element={
+            <MainLayout />
+        }
+      >
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+      </Route>
       <Route
         element={
             <MainLayout />

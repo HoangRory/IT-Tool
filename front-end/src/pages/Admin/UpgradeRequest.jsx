@@ -38,7 +38,7 @@ export default function UpgradeRequest() {
                 render: 'Upgrade requests loaded successfully',
                 type: 'success',
                 isLoading: false,
-                autoClose: 2000
+                autoClose: 500
             });
         } catch (error) {
             console.error('Error fetching upgrade requests:', error);
@@ -50,7 +50,7 @@ export default function UpgradeRequest() {
                 render: 'Failed to load upgrade requests',
                 type: 'error',
                 isLoading: false,
-                autoClose: 3000
+                autoClose: 1000
             });
         }
         setLoading(false);
@@ -122,7 +122,7 @@ export default function UpgradeRequest() {
                 handlePageChange(pageNumber);
             } else {
                 toast.error(`Please enter a valid page number between 1 and ${totalPages}`, {
-                    autoClose: 3000
+                    autoClose: 1000
                 });
                 setPageInput('');
             }
@@ -206,7 +206,7 @@ export default function UpgradeRequest() {
                     render: `Request ${status.toLowerCase()} successfully`,
                     type: 'success',
                     isLoading: false,
-                    autoClose: 2000
+                    autoClose: 500
                 });
             } else {
                 throw new Error(`Failed to ${status.toLowerCase()} request`);
@@ -219,7 +219,7 @@ export default function UpgradeRequest() {
                 render: `Failed to ${status.toLowerCase()} request`,
                 type: 'error',
                 isLoading: false,
-                autoClose: 3000
+                autoClose: 1000
             });
         }
     };
