@@ -41,7 +41,7 @@ namespace Backend.Models
                 Username = username,
                 PasswordHash = HashPassword(password),
                 Email = $"{username}@example.com", // Placeholder; update as needed
-                Role = "User" // Default role
+                Role = "user" // Default role
             };
 
             _context.Users.Add(user);

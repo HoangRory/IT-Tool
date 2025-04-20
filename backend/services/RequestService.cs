@@ -51,7 +51,7 @@ namespace Backend.Models
             }
         }
 
-         public async Task<bool> AddPendingUpgradeRequestAsync(string username)
+        public async Task<bool> AddPendingUpgradeRequestAsync(string username)
         {
             try
             {
@@ -64,13 +64,13 @@ namespace Backend.Models
                     return false; // User not found
                 }
 
-                // Check for existing pending request
-                var existingPendingRequest = await _context.UpgradeRequests
-                    .AnyAsync(r => r.UserId == user.Id && r.Status == "Pending");
+                // Check for existing pending or denied request
+                var existingRequest = await _context.UpgradeRequests
+                    .AnyAsync(r => r.UserId == user.Id && (r.Status == "Pending" || r.Status == "Denied"));
 
-                if (existingPendingRequest)
+                if (existingRequest)
                 {
-                    return false; // User already has a pending request
+                    return false; // User already has a pending or denied request
                 }
 
                 // Create new pending request
