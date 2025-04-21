@@ -1,10 +1,10 @@
 import React, { useContext, useState, useEffect } from 'react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import SearchBar from '../components/ui/SearchBar';
 import ThemeToggle from '../components/ui/ThemeToggle';
 import LogOut from '../components/ui/LogOut';
 import SearchModal from '../components/SearchModal';
 import UpgradeRequestModal from '../components/UpgradeRequestModal';
-import { Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { ToolsContext } from '../context/ToolsContext';
 
@@ -14,6 +14,12 @@ export default function Navbar() {
   const [openUpgradeModal, setOpenUpgradeModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const { tools } = useContext(ToolsContext);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleLogin = () => {
+    navigate('/login', { state: { from: location } });
+  };
 
   const allTools = tools.flatMap((category) => category.items);
 
@@ -67,11 +73,12 @@ export default function Navbar() {
           {user ? (
             <LogOut />
           ) : (
-            <Link to="/login">
-              <button className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md transition-colors">
-                Login
-              </button>
-            </Link>
+            <button
+              onClick={handleLogin}
+              className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md transition-colors"
+            >
+              Login
+            </button>
           )}
         </div>
       </nav>

@@ -7,13 +7,13 @@ const LogOut = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLogout = async () => {
-    setIsLoading(true); // Start loading animation
+    setIsLoading(true);
     try {
       await logout();
     } catch (error) {
-      console.error('Logout error:', error); // Log error for debugging
+      console.error('Logout error:', error);
     } finally {
-      setIsLoading(false); // Revert to "Log Out" button, whether success or failure
+      setIsLoading(false);
     }
   };
 

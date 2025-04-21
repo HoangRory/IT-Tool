@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 
 const Login = () => {
@@ -10,13 +10,16 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { login, user } = useContext(AuthContext);
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Redirect authenticated users away from login page
   useEffect(() => {
     if (user) {
-      navigate('/');
+      // Navigate to the previous location (if available) or default to '/'
+      const from = location.state?.from?.pathname || '/';
+      navigate(from, { replace: true });
     }
-  }, [user, navigate]);
+  }, [user, navigate, location]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,8 +29,13 @@ const Login = () => {
     const result = await login(username, password);
     if (!result.success) {
       setError(result.message);
+      setIsLoading(false);
+    } else {
+      // Navigate to the previous location (if available) or default to '/'
+      const from = location.state?.from?.pathname || '/';
+      console.log("Location:",location);
+      navigate(from, { replace: true });
     }
-    setIsLoading(false);
   };
 
   const handleSignupRedirect = () => {

@@ -23,7 +23,6 @@ import MathEvaluator from '../pages/Math/MathEvaluator';
 import ETACalculator from '../pages/Math/ETACaculator';
 import Login from '../components/Login';
 import Signup from '../components/Signup';
-import ProtectedRoute from './ProtectedRoute';
 import AdminRoute from './AdminRoutes';
 import PercentageCalculator from '../pages/Math/PercentageCalculator';
 import TextStatistics from '../pages/Text/TextStatistics';

@@ -25,12 +25,10 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        // Check authentication
         const response = await axios.get('http://localhost:5074/api/account/check', {
           withCredentials: true,
         });
 
-        // Fetch request status
         const statusResponse = await axios.get('http://localhost:5074/api/request/upgrade-requests/status', {
           withCredentials: true,
         });
@@ -39,7 +37,7 @@ export const AuthProvider = ({ children }) => {
           username: response.data.username,
           role: response.data.role,
           isPremium: response.data.role === 'premium' || response.data.role === 'admin',
-          requestStatus: statusResponse.data.status // "pending", "denied", or "none"
+          requestStatus: statusResponse.data.status
         };
         saveUser(userData);
       } catch (error) {
@@ -51,7 +49,7 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, []);
 
-  const login = async (username, password) => {
+  const login = async (username, password, from = null) => {
     try {
       const response = await axios.post(
         'http://localhost:5074/api/account/login',
@@ -59,7 +57,6 @@ export const AuthProvider = ({ children }) => {
         { withCredentials: true }
       );
 
-      // Fetch request status after login
       const statusResponse = await axios.get('http://localhost:5074/api/request/upgrade-requests/status', {
         withCredentials: true,
       });
@@ -72,9 +69,8 @@ export const AuthProvider = ({ children }) => {
       };
       saveUser(userData);
 
-      const targetPath = userData.role === 'admin' ? '/admin' : '/';
-      console.log('Navigating to:', targetPath);
-      navigate(targetPath);
+      const targetPath = from?.pathname || (userData.role === 'admin' ? '/admin' : '/');
+      navigate(targetPath, { replace: true });
 
       return { success: true, message: response.data.message };
     } catch (error) {
@@ -87,9 +83,9 @@ export const AuthProvider = ({ children }) => {
     try {
       await axios.post('http://localhost:5074/api/account/logout', {}, { withCredentials: true });
       saveUser(null);
-      navigate('/');
     } catch (error) {
       console.error('Logout failed:', error);
+      saveUser(null);
     }
   };
 
