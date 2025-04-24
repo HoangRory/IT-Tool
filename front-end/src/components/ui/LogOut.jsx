@@ -1,9 +1,11 @@
 import React, { useContext, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
+import { ToolsContext } from '../../context/ToolsContext';
 import { Loader2 } from 'lucide-react';
 
 const LogOut = () => {
   const { logout } = useContext(AuthContext);
+  const { refreshTools } = useContext(ToolsContext);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLogout = async () => {
@@ -13,6 +15,7 @@ const LogOut = () => {
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
+      await refreshTools(); 
       setIsLoading(false);
     }
   };
