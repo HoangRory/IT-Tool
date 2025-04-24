@@ -69,9 +69,13 @@ export default function Navbar() {
               </button>
             )
           )}
-          <ThemeToggle />
           {user ? (
-            <LogOut />
+            <div className="flex items-center gap-2">
+              <span className="flex items-center gap-2 bg-blue-500 text-white font-semibold py-2 px-4 rounded-md">Welcome, {user.username}</span>
+              <div >
+              <LogOut />
+              </div>
+            </div>
           ) : (
             <button
               onClick={handleLogin}
