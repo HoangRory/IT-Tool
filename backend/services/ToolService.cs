@@ -131,5 +131,28 @@ namespace Backend.Models // Adjust namespace to match your project
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<bool> AddToolAsync(Tool tool)
+        {
+            try
+            {
+                // nếu tool tồn tại thì không thêm
+                var existingTool = await _context.Tools.FirstOrDefaultAsync(t => t.Path == tool.Path);
+                if (existingTool != null)
+                {
+                    return false;
+                }
+                await _context.Tools.AddAsync(tool);
+                await _context.SaveChangesAsync();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error adding tool: {ex.Message}");
+                return false;
+            }
+        }
+
     }
 }

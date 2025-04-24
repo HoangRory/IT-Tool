@@ -39,6 +39,7 @@ import IbanValidatorAndParser from '../pages/Data/IBANValidatorAndParser';
 import UserManagement from '../pages/Admin/UserManagement';
 import ToolManagement from '../pages/Admin/ToolManagement';
 import UpgradeRequest from '../pages/Admin/UpgradeRequest';
+import ToolExecutor from '../components/ToolExecutor';
 
 // Mapping of tool paths to their corresponding components (without leading slashes)
 const toolComponents = {
@@ -96,6 +97,22 @@ export default function AppRoutes() {
           flattenedTools.map(tool => {
             const Component = toolComponents[tool.path];
             if (!Component) {
+              //check schemaInput for the tool and schmaOutput for the tool
+              if(tool.schemaInput && tool.schemaOutput) {
+                return (
+                  <Route
+                    key={tool.id}
+                    path={tool.path} // Use path as-is from database (e.g., "git-cheat-sheet")
+                    element={<ToolExecutor
+                      toolPath={tool.path}
+                      schemaInput={tool.schemaInput}
+                      schemaOutput={tool.schemaOutput}
+                      />}
+                  />
+                );
+              }
+              // If the component is not found, log a warning and return null
+
               console.warn(`No component found for tool path: ${tool.path}`);
               return null;
             }

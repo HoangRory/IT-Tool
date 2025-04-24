@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 
-export default function AutoResizingTextarea({ value, onChange }) {
+export default function AutoResizingTextarea({ value, onChange, classNames, ...props }) {
   const textareaRef = useRef(null);
 
   const handleInput = (e) => {
@@ -15,11 +15,11 @@ export default function AutoResizingTextarea({ value, onChange }) {
   return (
     <textarea
       ref={textareaRef}
-      className="border rounded-lg p-2 w-full focus:outline-none focus:ring-2 focus:ring-green-500 overflow-hidden"
+      className={`${"border rounded-lg p-2 w-full focus:outline-none focus:ring-2 focus:ring-green-500 overflow-hidden"} ${classNames}`}
       value={value}
       onChange={handleInput}
-      placeholder="Your math expression (ex 2*sqrt(6))..."
       rows={1}
+      {...props}
     />
   );
 }

@@ -124,6 +124,9 @@ export const fetchTools = async () => {
         icon: staticTool ? staticTool.icon : <Code size={18} />,
         description: tool.description || staticTool?.description || "No description available",
         isPremium: tool.isPremium || staticTool?.isPremium || false,
+        // chuyển string thanh array json
+        schemaInput: tool.inputSchema ? JSON.parse(tool.inputSchema) : [],
+        schemaOutput: tool.outputSchema ? JSON.parse(tool.outputSchema) : [],
       });
 
       return acc;

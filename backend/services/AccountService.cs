@@ -40,7 +40,7 @@ namespace Backend.Models
                 .ToListAsync();
         }
 
-        public async Task<User> GetUserByUsernameAsync(string username)
+        public async Task<User?> GetUserByUsernameAsync(string username)
         {
             if (string.IsNullOrEmpty(username))
             {

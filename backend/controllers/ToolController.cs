@@ -4,6 +4,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Backend.Models;
+using Backend.Helpers;
 
 namespace Backend.Controllers
 {
@@ -21,7 +22,7 @@ namespace Backend.Controllers
         }
 
         [HttpGet("list")]
-        [Authorize(Roles="admin")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> GetAllTools()
         {
             try
@@ -53,6 +54,46 @@ namespace Backend.Controllers
                 return StatusCode(500, new { error = "An error occurred while fetching tools." });
             }
         }
+        [HttpPost("upload-plugin")]
+        [Authorize(Roles = "admin")]
+        public async Task<IActionResult> UploadPlugin([FromForm] PluginUploadModel model)
+        {
+            try
+            {
+                var validationResult = PluginHelper.ValidatePluginUploadModel(model);
+                if (validationResult != null)
+                    return validationResult;
+
+                await PluginHelper.SavePluginFileAsync(model.JsFile!, model.Path!);
+                string inputSchema = await PluginHelper.ReadFileContentAsync(model.InputSchema!);
+                string outputSchema = await PluginHelper.ReadFileContentAsync(model.OutputSchema!);
+
+
+                var tool = new Tool
+                {
+                    Name = model.Name,
+                    Description = model.Description,
+                    Path = model.Path,
+                    CategoryId = model.CategoryId,
+                    IsPremium = false,
+                    IsEnabled = true,
+                    InputSchema = inputSchema,
+                    OutputSchema = outputSchema
+                };
+
+                var result = await _toolService.AddToolAsync(tool);
+                if (!result)
+                    return BadRequest("Tool already exists or failed to add tool.");
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error uploading plugin: {ex.Message}");
+                return StatusCode(500, new { error = "An error occurred while uploading the plugin." });
+            }
+        }
+
 
         [HttpGet("/")]
         [HttpGet("")]
@@ -71,13 +112,15 @@ namespace Backend.Controllers
                     Category = t.Category != null ? t.Category.Name : "Uncategorized",
                     t.Description,
                     t.IsPremium,
-                    t.IsEnabled
+                    t.IsEnabled,
+                    t.InputSchema,
+                    t.OutputSchema
                 });
 
                 Console.WriteLine("Fetched Tools:");
                 foreach (var tool in result)
                 {
-                    Console.WriteLine($"Name: {tool.Name}, Path: {tool.Path}, Category: {tool.Category}, Premium: {(tool.IsPremium ?? false ? "Yes" : "No")}");
+                    Console.WriteLine($"Name: {tool.Name}, Path: {tool.Path}, Category: {tool.Category}, Premium: {(tool.IsPremium ?? false ? "Yes" : "No")}, input: {tool.InputSchema}, output: {tool.OutputSchema}");
                 }
 
                 return Ok(result);
@@ -167,7 +210,7 @@ namespace Backend.Controllers
             if (tool == null)
                 return NotFound($"Tool '{toolPath}' not found.");
             Console.WriteLine(tool.Name);
-            if (tool.IsPremium?? false)
+            if (tool.IsPremium ?? false)
             {
                 var userRole = User.FindFirst(ClaimTypes.Role)?.Value ?? "anonymous";
 
@@ -239,7 +282,7 @@ namespace Backend.Controllers
                 return StatusCode(500, new { error = "An error occurred while updating tool enabled status." });
             }
         }
-        
+
     }
 
     public class FavoriteModel

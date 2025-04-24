@@ -2,10 +2,11 @@ import React from "react";
 
 const NumberInputWithButtons = ({
   label,
-  value,
+  value = 0,
   min = Number.NEGATIVE_INFINITY,
   onChange,
   step = 1,
+  classNameCostom = "",
 }) => {
   const handleDecrease = () => {
     const newValue = Math.max(value - step, min);
@@ -28,9 +29,9 @@ const NumberInputWithButtons = ({
   return (
     <div >
       {label && <label className="block font-medium mb-1">{label}</label>}
-      <div className="flex items-center border border-green-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-green-500">
+      <div className={`flex items-center border border-green-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-green-500  ${classNameCostom}`}{...props}>
         <input
-          type="type"
+          type="number"
           value={value}
           onChange={handleInputChange}
           min={min}
