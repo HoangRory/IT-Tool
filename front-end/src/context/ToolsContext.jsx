@@ -42,9 +42,15 @@ export const ToolsProvider = ({ children }) => {
       } catch (err) {
         console.error('Failed to load favorites:', err);
       }
+      console.log("Anonymous?",isMounted.current);
+      if (isMounted.current) {
+        setFavoriteToolIds([]);
+        console.log("Clear favorite tools?:",favoriteToolIds); // Clear favorites for anonymous users
+      }
     } else {
       if (isMounted.current) {
-        setFavoriteToolIds([]); // Clear favorites for anonymous users
+        setFavoriteToolIds([]);
+        console.log("Clear favorite tools?:",favoriteToolIds); // Clear favorites for anonymous users
       }
     }
   };

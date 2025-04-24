@@ -7,6 +7,7 @@ export default function Home() {
   const { user } = useContext(AuthContext);
   const { tools, favoriteToolIds, isLoading } = useContext(ToolsContext);
 
+  console.log(favoriteToolIds);
   // Filter favorite tools
   const favoriteTools = tools
     .flatMap(category => category.items)
