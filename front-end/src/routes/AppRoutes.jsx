@@ -36,6 +36,7 @@ import Chronometer from '../pages/Measurement/Chronometer';
 import BenchmarkBuilder from '../pages/Measurement/BenchmarkBuilder';
 import PhoneParserAndFormatter from '../pages/Data/PhoneParserAndFormatter';
 import IbanValidatorAndParser from '../pages/Data/IBANValidatorAndParser';
+import CreditCardValidatorAndParser from '../pages/Data/CreditCardValidator';
 import UserManagement from '../pages/Admin/UserManagement';
 import ToolManagement from '../pages/Admin/ToolManagement';
 import UpgradeRequest from '../pages/Admin/UpgradeRequest';
@@ -72,6 +73,7 @@ const toolComponents = {
   'benchmark-builder': BenchmarkBuilder,
   'phone-parser-and-formatter': PhoneParserAndFormatter,
   'iban-validator-and-parser': IbanValidatorAndParser,
+  'credit-card-validator-and-parser': CreditCardValidatorAndParser,
 };
 
 export default function AppRoutes() {
