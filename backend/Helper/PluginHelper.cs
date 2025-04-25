@@ -73,5 +73,17 @@ namespace Backend.Helpers
             }
             return input;
         }
+        public static bool DeletePluginFileAsync(string path)
+        {
+            string safePath = SanitizeFileName(path);
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "tools", safePath + ".js");
+
+            if (File.Exists(filePath))
+            {
+                File.Delete(filePath);
+                return true;
+            }
+            return false;
+        }
     }
 }

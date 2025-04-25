@@ -94,6 +94,38 @@ namespace Backend.Controllers
             }
         }
 
+        [HttpDelete("{toolId}")]
+        [Authorize(Roles = "admin")]
+        public async Task<IActionResult> DeleteTool(int toolId)
+        {
+            try
+            {
+                string path = await _toolService.GetPathByIdAsync(toolId);
+                if (string.IsNullOrEmpty(path))
+                {
+                    return NotFound(new { Message = "Tool not found" });
+                }
+                var success = await _toolService.DeleteToolAsync(toolId);
+                if (!success)
+                {
+                    return NotFound(new { Message = "Tool not found" });
+                }
+                // Delete the file from the server
+                var isDeleted = PluginHelper.DeletePluginFileAsync(path);
+                if (!isDeleted)
+                {
+                    return StatusCode(500, new { error = "Failed to delete the plugin file." });
+                }
+                
+                return Ok(new { Message = "Tool deleted successfully" });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deleting tool: {ex.Message}");
+                return StatusCode(500, new { error = "An error occurred while deleting the tool." });
+            }
+        }
+
 
         [HttpGet("/")]
         [HttpGet("")]
