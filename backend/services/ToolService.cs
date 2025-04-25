@@ -153,6 +153,25 @@ namespace Backend.Models // Adjust namespace to match your project
                 return false;
             }
         }
+        public async Task<string> GetPathByIdAsync(int id)
+        {
+            var tool = await _context.Tools
+                .AsNoTracking()
+                .FirstOrDefaultAsync(t => t.Id == id);
+            return tool?.Path ?? string.Empty;
+        }
+        public async Task<bool> DeleteToolAsync(int toolId)
+        {
+            var tool = await _context.Tools.FindAsync(toolId);
+            if (tool == null)
+            {
+                return false;
+            }
+
+            _context.Tools.Remove(tool);
+            await _context.SaveChangesAsync();
+            return true;
+        }
 
     }
 }
