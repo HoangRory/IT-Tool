@@ -272,6 +272,73 @@ export default function ToolManagement() {
         }
     };
 
+    const handleToggleDelete = (tool) => {
+        const toastId = toast(
+            <div>
+                <p>Are you sure you want to delete {tool.name}?</p>
+                <div className="flex justify-end space-x-2 mt-2">
+                    <button
+
+                        className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                        onClick={() => performDeleteTool(tool, toastId)}
+                    >
+                        Confirm
+                    </button>
+                    <button
+                        className="px-3 py-1 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
+                        onClick={() => toast.dismiss(toastId)}
+                    >
+                        Cancel
+                    </button>
+                </div>
+            </div>,
+            {
+                autoClose: false,
+                closeOnClick: false,
+                draggable: false
+            }
+        );
+    };
+
+    const performDeleteTool = async (tool, toastId) => {
+        const loadingToast = toast.loading(`Deleting ${tool.name}...`);
+        try {
+            const response = await fetch(`/api/tools/${tool.id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include'
+            });
+            if (response.ok) {
+                const updatedTools = allTools.filter(t => t.id !== tool.id);
+                setAllTools(updatedTools);
+                applyFiltersAndSort(searchTerm, selectedCategory, sortBy, updatedTools);
+                await refreshTools(); // Refresh tools across the app
+                toast.dismiss(toastId);
+                toast.update(loadingToast, {
+                    render: `${tool.name} deleted successfully`,
+                    type: 'success',
+                    isLoading: false,
+                    autoClose: 500
+                });
+            } else {
+                throw new Error('Failed to delete tool');
+            }
+        } catch (error) {
+            console.error('Error deleting tool:', error);
+            setError('Failed to delete tool. Please try again.');
+            toast.dismiss(toastId);
+            toast.update(loadingToast, {
+                render: 'Failed to delete tool',
+                type: 'error',
+                isLoading: false,
+                autoClose: 1000
+            });
+        }
+    };
+    
+
     const totalPages = Math.ceil(filteredTools.length / toolsPerPage);
 
     return (
@@ -331,6 +398,7 @@ export default function ToolManagement() {
                                     <th className="px-4 py-2 border-b text-left text-sm font-medium text-gray-700">Category</th>
                                     <th className="px-4 py-2 border-b text-left text-sm font-medium text-gray-700">Premium</th>
                                     <th className="px-4 py-2 border-b text-left text-sm font-medium text-gray-700">Enabled</th>
+                                    <th className="px-4 py-2 border-b text-left text-sm font-medium text-gray-700">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -361,6 +429,14 @@ export default function ToolManagement() {
                                                 }`}
                                             >
                                                 {tool.isEnabled ? 'Disable' : 'Enable'}
+                                            </button>
+                                        </td>
+                                        <td>
+                                            <button
+                                                onClick={() => handleToggleDelete(tool)}
+                                                className="px-4 py-1 rounded-md text-white text-sm font-medium bg-red-500 hover:bg-red-600"
+                                            >
+                                                Delete
                                             </button>
                                         </td>
                                     </tr>
