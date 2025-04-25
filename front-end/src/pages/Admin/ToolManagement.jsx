@@ -82,7 +82,7 @@ export default function ToolManagement() {
         applyFiltersAndSort(searchTerm, selectedCategory, sortOption, allTools);
     };
 
-    const applyFiltersAndSort = (term, category, sortOption, toolsList) => {
+    const applyFiltersAndSort = (term, category, sortOption, toolsList, page = 1) => {
         let filtered = [...toolsList];
 
         if (term.trim() !== '') {
@@ -100,7 +100,7 @@ export default function ToolManagement() {
         }
 
         setFilteredTools(filtered);
-        const startIndex = 0;
+        const startIndex = (page - 1) * toolsPerPage;
         setDisplayedTools(filtered.slice(startIndex, startIndex + toolsPerPage));
         setError(filtered.length === 0 ? 'No tools found matching the criteria.' : null);
     };
@@ -177,7 +177,7 @@ export default function ToolManagement() {
                     t.id === tool.id ? { ...t, isPremium: newStatus } : t
                 );
                 setAllTools(updatedTools);
-                applyFiltersAndSort(searchTerm, selectedCategory, sortBy, updatedTools);
+                applyFiltersAndSort(searchTerm, selectedCategory, sortBy, updatedTools, currentPage);
                 await refreshTools(); // Refresh tools across the app
                 toast.dismiss(toastId);
                 toast.update(loadingToast, {
@@ -247,7 +247,7 @@ export default function ToolManagement() {
                     t.id === tool.id ? { ...t, isEnabled: newStatus } : t
                 );
                 setAllTools(updatedTools);
-                applyFiltersAndSort(searchTerm, selectedCategory, sortBy, updatedTools);
+                applyFiltersAndSort(searchTerm, selectedCategory, sortBy, updatedTools, currentPage);
                 await refreshTools(); // Refresh tools across the app
                 toast.dismiss(toastId);
                 toast.update(loadingToast, {
@@ -310,10 +310,10 @@ export default function ToolManagement() {
                 },
                 credentials: 'include'
             });
-            if (response.ok) {
+            if (response.ok) {         
                 const updatedTools = allTools.filter(t => t.id !== tool.id);
                 setAllTools(updatedTools);
-                applyFiltersAndSort(searchTerm, selectedCategory, sortBy, updatedTools);
+                applyFiltersAndSort(searchTerm, selectedCategory, sortBy, updatedTools, currentPage);
                 await refreshTools(); // Refresh tools across the app
                 toast.dismiss(toastId);
                 toast.update(loadingToast, {
@@ -337,7 +337,7 @@ export default function ToolManagement() {
             });
         }
     };
-    
+
 
     const totalPages = Math.ceil(filteredTools.length / toolsPerPage);
 

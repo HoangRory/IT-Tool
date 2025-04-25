@@ -15,7 +15,7 @@ export default function AutoResizingTextarea({ value, onChange, classNames, ...p
   return (
     <textarea
       ref={textareaRef}
-      className={`${"border rounded-lg p-2 w-full focus:outline-none focus:ring-2 focus:ring-green-500 overflow-hidden"} ${classNames}`}
+      className={`${"border rounded-lg min-h-80 p-2 w-full focus:outline-none focus:ring-2 focus:ring-green-500 overflow-hidden"} ${classNames}`}
       value={value}
       onChange={handleInput}
       rows={1}
