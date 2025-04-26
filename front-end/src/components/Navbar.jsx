@@ -1,14 +1,14 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import SearchBar from '../components/ui/SearchBar';
-import ThemeToggle from '../components/ui/ThemeToggle';
 import LogOut from '../components/ui/LogOut';
 import SearchModal from '../components/SearchModal';
 import UpgradeRequestModal from '../components/UpgradeRequestModal';
 import { AuthContext } from '../context/AuthContext';
 import { ToolsContext } from '../context/ToolsContext';
+import { Menu } from "lucide-react";
 
-export default function Navbar() {
+export default function Navbar({toggleSidebar}) {
   const { user } = useContext(AuthContext);
   const [openSearch, setOpenSearch] = useState(false);
   const [openUpgradeModal, setOpenUpgradeModal] = useState(false);
@@ -43,6 +43,9 @@ export default function Navbar() {
   return (
     <>
       <nav className="flex items-center justify-between text-white p-4">
+      <button onClick={toggleSidebar} className="mr-4 text-green-700 hover:text-green-900">
+        <Menu size={24} />
+      </button>
         <SearchBar onClick={() => setOpenSearch(true)} />
         <div className="flex items-center gap-4">
           {user && user.role === 'admin' && (
