@@ -52,13 +52,12 @@ export default function AddTool() {
       const res = await axios.post("/api/tools/upload-plugin", fullData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      if (res.ok){
+      if (res.status === 200) {
         setMessage("Upload successful!");
         setError("");
-      }
-      else {
-        setMessage("Upload failed.");
-        setError("Upload failed.");
+      } else {
+        setMessage("");
+        setError("Upload failed");
       }
     } catch (err) {
       setError(err.response?.data || "Upload failed.");
