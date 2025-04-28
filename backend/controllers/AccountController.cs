@@ -63,11 +63,15 @@ namespace Backend.Controllers
 
         [HttpGet("check")]
         [Authorize]
-        public IActionResult CheckAuth()
+        public async Task<IActionResult> CheckAuth()
         {
             var username = User.FindFirst(ClaimTypes.Name)?.Value;
-            var role = User.FindFirst(ClaimTypes.Role)?.Value;
-            return Ok(new { Username = username, Role = role });
+            var user = await _accountService.GetUserByUsernameAsync(username);
+            if (user == null)
+            {
+                return Unauthorized(new { Message = "User not found" });
+            }
+            return Ok(new { Username = user.Username, Role = user.Role ?? "user" });
         }
 
         [HttpPost("register")]
@@ -97,9 +101,18 @@ namespace Backend.Controllers
         }
 
         [HttpGet("user/{username}")]
-        [Authorize(Roles = "admin")]
+        [Authorize]
         public async Task<IActionResult> GetUserByUsername(string username)
         {
+            // Check if the user is an admin or the requested username matches the authenticated user
+            var currentUsername = User.FindFirst(ClaimTypes.Name)?.Value;
+            var isAdmin = User.IsInRole("admin");
+
+            if (!isAdmin && currentUsername != username)
+            {
+                return Forbid();
+            }
+
             var user = await _accountService.GetUserByUsernameAsync(username);
             if (user == null)
             {
@@ -117,6 +130,23 @@ namespace Backend.Controllers
             {
                 return NotFound(new { Message = "User not found or invalid role" });
             }
+
+            // Reissue cookie if the updated user is the current user
+            var currentUsername = User.FindFirst(ClaimTypes.Name)?.Value;
+            if (currentUsername == username)
+            {
+                var user = await _accountService.GetUserByUsernameAsync(username);
+                var claims = new[]
+                {
+                    new Claim(ClaimTypes.Name, user.Username),
+                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                    new Claim(ClaimTypes.Role, user.Role ?? "user")
+                };
+                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal);
+            }
+
             return Ok(new { Message = "Role updated successfully" });
         }
     }

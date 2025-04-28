@@ -25,27 +25,40 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        // Fetch current user data from the server
         const response = await axios.get('http://localhost:5074/api/account/check', {
           withCredentials: true,
         });
 
-        const statusResponse = await axios.get('http://localhost:5074/api/request/upgrade-requests/status', {
-          withCredentials: true,
-        });
+        // Fetch upgrade request status
+        let statusResponse;
+        try {
+          statusResponse = await axios.get('http://localhost:5074/api/request/upgrade-requests/status', {
+            withCredentials: true,
+          });
+        } catch (statusError) {
+          // If status request fails, assume no pending request
+          statusResponse = { data: { status: null } };
+        }
 
         const userData = {
           username: response.data.username,
           role: response.data.role,
           isPremium: response.data.role === 'premium' || response.data.role === 'admin',
-          requestStatus: statusResponse.data.status
+          requestStatus: statusResponse.data.status,
         };
+
+        // Update client-side state with server data
         saveUser(userData);
       } catch (error) {
+        // If the check fails (e.g., invalid cookie), clear user state
+        console.error('Auth check failed:', error);
         saveUser(null);
       } finally {
         setLoading(false);
       }
     };
+
     checkAuth();
   }, []);
 
@@ -57,15 +70,20 @@ export const AuthProvider = ({ children }) => {
         { withCredentials: true }
       );
 
-      const statusResponse = await axios.get('http://localhost:5074/api/request/upgrade-requests/status', {
-        withCredentials: true,
-      });
+      let statusResponse;
+      try {
+        statusResponse = await axios.get('http://localhost:5074/api/request/upgrade-requests/status', {
+          withCredentials: true,
+        });
+      } catch (statusError) {
+        statusResponse = { data: { status: null } };
+      }
 
       const userData = {
         username: response.data.username,
         role: response.data.role,
         isPremium: response.data.role === 'premium' || response.data.role === 'admin',
-        requestStatus: statusResponse.data.status
+        requestStatus: statusResponse.data.status,
       };
       saveUser(userData);
 
@@ -83,9 +101,11 @@ export const AuthProvider = ({ children }) => {
     try {
       await axios.post('http://localhost:5074/api/account/logout', {}, { withCredentials: true });
       saveUser(null);
+      navigate('/', { replace: true });
     } catch (error) {
       console.error('Logout failed:', error);
       saveUser(null);
+      navigate('/', { replace: true });
     }
   };
 
